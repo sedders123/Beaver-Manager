@@ -1,2 +1,2 @@
 # Beaver-Manager
-Django project to manage a Beaver group
+Flask project to manage a Beaver group
