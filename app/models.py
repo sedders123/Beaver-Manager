@@ -10,13 +10,36 @@ class User(db.Model):
         return '<User %r>' % self.name
 
 
+class Address(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    line1 = db.Column(db.String(64))
+    line2 = db.Column(db.String(64))
+    town = db.Column(db.String(64))
+    county = db.Column(db.String(64))
+    postcode = db.Column(db.String(64))
+
+
+class PhoneNumber(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    phone_number = db.Column(db.String(11))
+
+
+class EmergencyContact(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
+    first_name = db.Column(db.String(64))
+    surname = db.Column(db.String(64))
+
+
 class Beaver(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(64))
     surname = db.Column(db.String(64))
     dob = db.Column(db.DateTime)
     badges = db.relationship('Badge', backref="beaver", lazy="dynamic")
-    lodge = db.relationship('Lodge', backref="beaver", lazy="dynamic")
+    lodge_id = db.Column(db.Integer, db.ForeignKey('lodge.id'))
+    contacts = db.relationships('EmergencyContact', backref="beaver",
+                                lazy="dynamic")
 
     def __repr__(self):
         return '<Beaver %r>' % (self.first_name + " " + self.surname)
@@ -25,6 +48,7 @@ class Beaver(db.Model):
 class Lodge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
+    beavers = db.relationship('Beaver', backref="lodge", lazy="dynamic")
 
 
 class MasterBadge(db.Model):
