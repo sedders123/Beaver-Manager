@@ -13,12 +13,18 @@ class User(db.Model):
 class Beaver(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(64))
-    surname = db.Column(db.string(64))
+    surname = db.Column(db.String(64))
     dob = db.Column(db.DateTime)
     badges = db.relationship('Badge', backref="beaver", lazy="dynamic")
+    lodge = db.relationship('Lodge', backref="beaver", lazy="dynamic")
 
     def __repr__(self):
         return '<Beaver %r>' % (self.first_name + " " + self.surname)
+
+
+class Lodge(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
 
 
 class MasterBadge(db.Model):
