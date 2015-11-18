@@ -38,7 +38,7 @@ class Beaver(db.Model):
     dob = db.Column(db.DateTime)
     badges = db.relationship('Badge', backref="beaver", lazy="dynamic")
     lodge_id = db.Column(db.Integer, db.ForeignKey('lodge.id'))
-    contacts = db.relationships('EmergencyContact', backref="beaver",
+    contacts = db.relationship('EmergencyContact', backref="beaver",
                                 lazy="dynamic")
 
     def __repr__(self):
