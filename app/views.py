@@ -1,5 +1,8 @@
-from flask import render_template
-from app import app
+from flask import render_template, flash, redirect, session, url_for, request, g, abort
+from flask.ext.login import login_user, logout_user, current_user, login_required
+
+from app import app, db
+from .models import Beaver
 
 
 @app.route('/')
@@ -20,3 +23,14 @@ def index():
                            title='Home',
                            user=user,
                            posts=posts)
+
+
+@app.route('/beavers')
+def beavers():
+    Beavers = Beaver.query.order_by(Beaver.surname)
+    return render_template("beavers.html", beavers=Beavers)
+
+
+@app.route('/new_beaver')
+def new_beaver():
+    form = NewBeaverForm()
