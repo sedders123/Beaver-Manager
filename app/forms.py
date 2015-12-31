@@ -1,10 +1,8 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, BooleanField
 from wtforms.validators import DataRequired
+from wtforms.ext.sqlalchemy.orm import model_form
+from .models import Beaver
+from app import db
 
-
-class NewBeaverForm(Form):
-    first_name = StringField(validators=[DataRequired()])
-    surname = StringField(validators=[DataRequired()])
-    dob = DateField('Date of Birth', format='%m/%d/%Y',
-                    validators=[DataRequired()])
+BeaverForm = model_form(Beaver, db_session=db.session, base_class=Form)

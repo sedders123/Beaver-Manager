@@ -1,15 +1,6 @@
 from app import db
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64))
-    email = db.Column(db.String(120))
-
-    def __repr__(self):
-        return '<User %r>' % self.name
-
-
 class Address(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     line1 = db.Column(db.String(64))
@@ -36,10 +27,9 @@ class Beaver(db.Model):
     first_name = db.Column(db.String(64))
     surname = db.Column(db.String(64))
     dob = db.Column(db.DateTime)
-    badges = db.relationship('Badge', backref="beaver", lazy="dynamic")
     lodge_id = db.Column(db.Integer, db.ForeignKey('lodge.id'))
     contacts = db.relationship('EmergencyContact', backref="beaver",
-                                lazy="dynamic")
+                               lazy="dynamic")
 
     def __repr__(self):
         return '<Beaver %r>' % (self.first_name + " " + self.surname)
@@ -50,13 +40,18 @@ class Lodge(db.Model):
     name = db.Column(db.String(64))
     beavers = db.relationship('Beaver', backref="lodge", lazy="dynamic")
 
+    def __repr__(self):
+        return '<Lodge %r>' % self.name
+
 
 class MasterBadge(db.Model):
+    __tablename__ = "masterbadge"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     img_url = db.Column(db.String(64))
     criteria = db.relationship('MasterCriterion', backref="master_badge",
                                lazy="dynamic")
+    badges = db.relationship('Badge', backref="master_badge", lazy="dynamic")
 
     def __repr__(self):
         return '<MasterBadge %r>' % self.name
@@ -65,6 +60,7 @@ class MasterBadge(db.Model):
 class Badge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
+    beaver = db.relationship('Beaver', backref="badges")
     master_badge_id = db.Column(db.Integer, db.ForeignKey('masterbadge.id'))
     completed = db.Column(db.Boolean)
     criteria = db.relationship('Criterion', backref="badge", lazy="dynamic")
@@ -74,6 +70,7 @@ class Badge(db.Model):
 
 
 class MasterCriterion(db.Model):
+    __tablename__ = "mastercriterion"
     id = db.Column(db.Integer, primary_key=True)
     master_badge_id = db.Column(db.Integer, db.ForeignKey('masterbadge.id'))
     description = db.Column(db.String(128))
@@ -84,7 +81,9 @@ class MasterCriterion(db.Model):
 
 class Criterion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    master_criterion_id = db.Column(db.Integer, db.ForeignKey('criterion.id'))
+    master_badge_id = db.Column(db.Integer, db.ForeignKey('masterbadge.id'))
+    master_criterion_id = db.Column(db.Integer, db.ForeignKey('mastercriterion.id'))
+    master_criterion = db.relationship('MasterCriterion', backref="criteria")
     badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'))
     completed = db.Column(db.Boolean)
 
