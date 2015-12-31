@@ -5,10 +5,19 @@ from app import app, db
 from .models import Beaver
 from .views import *
 
+"""
+.. module:: views
+   :platform: Unix
+   :synopsis: Contains the routing paths used by Flask to render pages that the user requests. Also includes logic used to parse information in and out of templates
+
+
+"""
+
 
 @app.route('/')
 @app.route('/index')
 def index():
+    """Displays the homepage"""
     user = {'nickname': 'Miguel'}  # fake user
     posts = [  # fake array of posts
         {
@@ -28,38 +37,6 @@ def index():
 
 @app.route('/beavers')
 def beavers():
+    """Queries the database for all beavers then displays a list of them"""
     Beavers = Beaver.query.all()
     return render_template("beavers.html", beavers=Beavers)
-
-
-@app.route('/new_beaver')
-def new_beaver():
-    form = NewBeaverForm()
-
-
-@app.route("/edit<id>", methods=['GET', 'POST'])
-def edit(id):
-    beaver = db.session.query(Beaver).filter(Beaver.id == id)
-    form = BeaverForm(obj=beaver)
-
-    if form.validate_on_submit():
-        form.populate_obj(beaver[0])
-        for beaver_actual in beaver:
-            beaver_actual.save()
-        flash("Beaver updated")
-        return redirect(url_for("index"))
-    return render_template("edit_beaver.html", form=form, action="Edit", data_type="a beaver")
-
-
-@app.route("/add_beaver", methods=['GET', 'POST'])
-def add():
-    form = BeaverForm(request.form)
-
-    if form.validate_on_submit():
-        beaver = Beaver()
-        form.populate_obj(beaver)
-        db.session.add(beaver)
-        db.session.commit()
-        flash("Beaver added")
-        return redirect(url_for("index"))
-    return render_template("edit_beaver.html", form=form, action="Add")

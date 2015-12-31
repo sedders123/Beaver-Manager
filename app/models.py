@@ -1,4 +1,12 @@
 from app import db
+"""
+.. module:: models
+   :platform: Unix
+   :synopsis: Contains SQLAlchemy Modules used to store information about beavers
+
+
+
+"""
 
 
 class Address(db.Model):

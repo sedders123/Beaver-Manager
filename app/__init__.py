@@ -3,6 +3,10 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 
+"""
+A Managment system for Beavers
+
+"""
 
 
 app = Flask(__name__)
