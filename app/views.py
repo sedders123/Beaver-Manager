@@ -47,6 +47,27 @@ def beavers():
 class BeaverModelView(ModelView):
     inline_models = (EmergencyContact,)  # comma needed for some reason
 
+    def on_model_change(self, form, model, is_created):
+        badges = db.session.query(Badge).all()
+        for badge in badges:
+            beaver_badges = []
+            for badge in model.badges:
+                beaver_badges.append(badge.badge_id)
+            if badge.id not in beaver_badges:
+                beaver_badge = BeaverBadge(model.id, badge.id, False)
+                db.session.add(beaver_badge)
+                db.session.commit()
+                print("Created Badge")
+
+                for criterion in badge.criteria:
+                    badge_id = model.id
+                    badge_criterion = BadgeCriterion(criterion.id, badge_id, False)
+                    db.session.add(badge_criterion)
+                    db.session.commit()
+                    print("Criterion Created")
+            else:
+                print("Badge not created")
+
 
 class BadgeModelView(ModelView):
     inline_models = (Criterion,)
@@ -56,7 +77,7 @@ class BadgeModelView(ModelView):
         for beaver in beavers:
             beaver_badges = []
             for badge in beaver.badges:
-                beaver_badges.append(badge.master_badge_id)
+                beaver_badges.append(badge.badge_id)
             if model.id not in beaver_badges:
                 beaver_badge = BeaverBadge(beaver.id, model.id, False)
                 db.session.add(beaver_badge)
@@ -83,8 +104,8 @@ admin.add_view(ModelView(Lodge, db.session))
 admin.add_view(ModelView(Trip, db.session))
 admin.add_view(ModelView(Attendance, db.session))
 
-admin.add_view(ModelView(Criterion, db.session))  # Debugging only
-admin.add_view(ModelView(BadgeCriterion, db.session))  # Debugging only
-admin.add_view(BeaverBadgeModelView(BeaverBadge, db.session))  # Hopefully debugging only
-admin.add_view(ModelView(BeaverTrip, db.session))  # Hopefully debugging only
-admin.add_view(ModelView(BeaverAttendance, db.session))  # Hopefully debugging only
+admin.add_view(ModelView(Criterion, db.session, category='Debugging'))  # Debugging only
+admin.add_view(ModelView(BadgeCriterion, db.session, category='Debugging'))  # Debugging only
+admin.add_view(BeaverBadgeModelView(BeaverBadge, db.session, category='Debugging'))  # Hopefully debugging only
+admin.add_view(ModelView(BeaverTrip, db.session, category='Debugging'))  # Hopefully debugging only
+admin.add_view(ModelView(BeaverAttendance, db.session, category='Debugging'))  # Hopefully debugging only
