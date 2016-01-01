@@ -1,11 +1,9 @@
 from app import db
+import sqlalchemy_utils
 """
 .. module:: models
    :platform: Unix
-   :synopsis: Contains SQLAlchemy Modules used to store information about beavers
-
-
-
+   :synopsis: Contains SQLAlchemy models used to store information
 """
 
 
@@ -28,6 +26,7 @@ class EmergencyContact(db.Model):
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
     first_name = db.Column(db.String(64))
     surname = db.Column(db.String(64))
+    email = db.Column(db.String(256))
 
 
 class Beaver(db.Model):
@@ -52,48 +51,104 @@ class Lodge(db.Model):
         return '<Lodge %r>' % self.name
 
 
-class MasterBadge(db.Model):
-    __tablename__ = "masterbadge"
+class Badge(db.Model):
+    __tablename__ = "badge"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     img_url = db.Column(db.String(64))
-    criteria = db.relationship('MasterCriterion', backref="master_badge",
-                               lazy="dynamic")
-    badges = db.relationship('Badge', backref="master_badge", lazy="dynamic")
+    beaver_badges = db.relationship('BeaverBadge', backref="badge", lazy="dynamic")
 
     def __repr__(self):
-        return '<MasterBadge %r>' % self.name
+        return '<Badge %r>' % self.name
 
 
-class Badge(db.Model):
+class BeaverBadge(db.Model):
+    __tablename__ = "beaverbadge"
     id = db.Column(db.Integer, primary_key=True)
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
     beaver = db.relationship('Beaver', backref="badges")
-    master_badge_id = db.Column(db.Integer, db.ForeignKey('masterbadge.id'))
-    completed = db.Column(db.Boolean)
-    criteria = db.relationship('Criterion', backref="badge", lazy="dynamic")
-
-    def __repr__(self):
-        return '<Badge %r> for Beaver: %r' % (self.id, self.beaver_id)
-
-
-class MasterCriterion(db.Model):
-    __tablename__ = "mastercriterion"
-    id = db.Column(db.Integer, primary_key=True)
-    master_badge_id = db.Column(db.Integer, db.ForeignKey('masterbadge.id'))
-    description = db.Column(db.String(128))
-
-    def __repr__(self):
-        return '<MasterCriterion %r> Desc: %r' % (self.id, self.description)
-
-
-class Criterion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    master_badge_id = db.Column(db.Integer, db.ForeignKey('masterbadge.id'))
-    master_criterion_id = db.Column(db.Integer, db.ForeignKey('mastercriterion.id'))
-    master_criterion = db.relationship('MasterCriterion', backref="criteria")
     badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'))
     completed = db.Column(db.Boolean)
 
+    def __init__(self, beaver_id, badge_id, completed):
+        self.beaver_id = beaver_id
+        self.badge_id = badge_id
+        self.completed = completed
+
     def __repr__(self):
-        return '<Criterion %r> for Badge: %r' % (self.id, self.badge_id)
+        return '<BeaverBadge %r> for: %r' % (self.id, self.beaver_id)
+
+
+class Criterion(db.Model):
+    __tablename__ = "criterion"
+    id = db.Column(db.Integer, primary_key=True)
+    badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'))
+    badge = db.relationship('Badge', backref="criteria")
+    description = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<Criterion %r> Desc: %r' % (self.id, self.description)
+
+
+class BadgeCriterion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    criterion_id = db.Column(db.Integer, db.ForeignKey('criterion.id'))
+    criterion = db.relationship('Criterion', backref="criteria")
+    badge_id = db.Column(db.Integer, db.ForeignKey('beaverbadge.id'))
+    badge = db.relationship('BeaverBadge', backref="criteria")
+    completed = db.Column(db.Boolean)
+
+    def __init__(self, criterion_id, badge_id, completed):
+        self.criterion_id = criterion_id
+        self.badge_id = badge_id
+        self.completed = completed
+
+    def __repr__(self):
+        return '<BadgeCriterion %r> for Badge: %r' % (self.id, self.badge_id)
+
+
+class Trip(db.Model):
+    __tablename__ = "trip"
+    id = db.Column(db.Integer, primary_key=True)
+    location = db.Column(db.String(128))
+    cost = db.Column(db.Numeric(7, 2))  # Maximum value of 99999.99
+    date = db.Column(db.DateTime)
+    overnight = db.Column(db.Boolean)
+    number_of_nights = db.Column(db.Integer)
+
+    def __repr__(self):
+        return '<Trip %r> to %r' % (self.id, self.location)
+
+
+class BeaverTrip(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
+    beaver = db.relationship('Beaver', backref="trips")
+    trip_id = db.Column(db.Integer, db.ForeignKey('trip.id'))
+    trip = db.relationship('Trip', backref="trips")
+    permission = db.Column(db.Boolean)
+    paid = db.Column(db.Boolean)
+
+    def __repr__(self):
+        return '<BeaverTrip %r> for: %r' % (self.id, self.beaver_id)
+
+
+class Attendance(db.Model):
+    __tablename__ = "attendance"
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime)
+
+    def __repr__(self):
+        return '<Attendance %r>' % (self.id)
+
+
+class BeaverAttendance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    attendance_id = db.Column(db.Integer, db.ForeignKey('attendance.id'))
+    attendance = db.relationship('Attendance', backref="beaverattendances")
+    beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
+    beaver = db.relationship('Beaver', backref="attendances")
+    present = db.Column(db.Boolean)
+
+    def __repr__(self):
+        return '<BeaverAttendance %r> for: %r' % (self.id, self.beaver_id)
