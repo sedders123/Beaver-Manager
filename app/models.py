@@ -1,10 +1,5 @@
 from app import db
 import sqlalchemy_utils
-"""
-.. module:: models
-   :platform: Unix
-   :synopsis: Contains SQLAlchemy models used to store information
-"""
 
 
 class Address(db.Model):
@@ -16,17 +11,19 @@ class Address(db.Model):
     postcode = db.Column(db.String(64))
 
 
-class PhoneNumber(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    phone_number = db.Column(db.String(11))
-
-
 class EmergencyContact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
     first_name = db.Column(db.String(64))
     surname = db.Column(db.String(64))
     email = db.Column(db.String(256))
+    address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
+    address = db.relationship('Address', backref="emergency_contact")
+    phone_number = db.Column(db.String(11))
+
+    def __repr__(self):
+        return '<EmergencyContact %r> for: ' % (self.first_name,
+                                                self.beaver_id)
 
 
 class Beaver(db.Model):
@@ -56,7 +53,8 @@ class Badge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     img_url = db.Column(db.String(64))
-    beaver_badges = db.relationship('BeaverBadge', backref="badge", lazy="dynamic")
+    beaver_badges = db.relationship('BeaverBadge', backref="badge",
+                                    lazy="dynamic")
 
     def __repr__(self):
         return '<Badge %r>' % self.name
@@ -128,6 +126,12 @@ class BeaverTrip(db.Model):
     trip = db.relationship('Trip', backref="trips")
     permission = db.Column(db.Boolean)
     paid = db.Column(db.Boolean)
+
+    def __init__(self, beaver_id, trip_id, permission, paid):
+        self.beaver_id = beaver_id
+        self.trip_id = trip_id
+        self.permission = permission
+        self.paid = paid
 
     def __repr__(self):
         return '<BeaverTrip %r> for: %r' % (self.id, self.beaver_id)

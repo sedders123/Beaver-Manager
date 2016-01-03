@@ -1,9 +1,3 @@
-"""
-.. module:: config
-   :synopsis: Contains configuration variables for the Flask appplication
-
-
-"""
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 

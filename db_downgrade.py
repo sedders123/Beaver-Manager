@@ -1,12 +1,4 @@
 #!flask/bin/python
-"""
-.. module:: db_downgrade.py
-   :synopsis: Reverts the database to its previous state
-
-.. moduleauthor:: James Seden Smith <sedders123@gmail.com>
-
-
-"""
 from migrate.versioning import api
 from config import SQLALCHEMY_DATABASE_URI
 from config import SQLALCHEMY_MIGRATE_REPO

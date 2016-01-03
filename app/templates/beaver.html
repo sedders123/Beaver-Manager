@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+  <p>Name: {{beaver.first_name}} {{beaver.surname}} </p>
+  <p>Date of Birth: {{beaver.dob}} </p>
+  <p>Lodge: {{beaver.lodge.name}} </p>
+  {% for contact in beaver.contacts %}
+    <p>Name: {{contact.first_name}} {{contact.surname}}</p>
+    <p>Email: {{contact.email}}</p>
+  {% endfor %}
+{% endblock %}

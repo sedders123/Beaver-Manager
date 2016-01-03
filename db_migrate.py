@@ -1,10 +1,4 @@
 #!flask/bin/python
-"""
-.. module:: db_migrate.py
-   :synopsis: Migrates the data from the old database to the newer version of the database
-
-
-"""
 import imp
 from migrate.versioning import api
 from app import db
