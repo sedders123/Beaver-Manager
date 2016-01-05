@@ -12,7 +12,7 @@ def send_message(recepient, subject, message):
 
     Args:
         recepient (str): In form "John Doe <john.doe@example.com>"
-        subject (str)
+        subject (str): Plain text
         message (str): Can use HTML formatting
     """
     message = sendgrid.Mail()

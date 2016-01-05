@@ -1,3 +1,9 @@
+"""
+This module contains the views for the app.
+
+Using the ``@app.route(path)`` function to route the request it then executes
+the nesecerrary code return a rendered template at the end.
+"""
 from flask import render_template, flash, redirect, session, url_for, request, g, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flask_admin.contrib.sqla import ModelView
@@ -16,7 +22,7 @@ admin = Admin(app, name='beavermanager', template_mode='bootstrap3')
 @app.route('/index')
 def index():
     """Displays the homepage"""
-    return render_template("index.html",title='Home')
+    return render_template("index.html", title='Home')
 
 
 @app.route('/beavers')
@@ -29,40 +35,47 @@ def beavers():
 
 @app.route('/beavers/<beaver_id>')
 def beaver_individual(beaver_id):
-    """Displays Information about  the given beaver"""
+    """
+    Displays Information about the given beaver
+    Args:
+        beaver_id (int): The ID number of the beaver record
+    """
     beaver = Beaver.query.get(beaver_id)
     return render_template("beaver.html", beaver=beaver)
 
 
 @app.route('/registers')
 def register_main():
-    """Displays which dates registers can be taken upon"""
+    """Displays a list displaying dates for which registers can be taken"""
     attendances = Attendance.query.all()
     return render_template("register_main.html", attendances=attendances)
 
 
 @app.route('/registers/<attendance_id>', methods=['GET', 'POST'])
 def register_beavers(attendance_id):
-    """Displays a form to record beaver atendance"""
+    """
+    Displays a form to record beavers atendance.
+    Args:
+        attendance_id (int): The ID number of the attendance record
+    """
     beavers = Beaver.query.all()
-    beaver_attendances = BeaverAttendance.query.all()
+    beaver_attendances = BeaverAttendance.query.filter_by(attendance_id=attendance_id).all()
     selected = []
 
     class ChoiceObj(object):
         def __init__(self, name, choices):
             """
-              This is needed so that BaseForm.process will accept the object for the named form,
-              and eventually it will end up in SelectMultipleField.process_data and get assigned
-              to .data
+              This is needed so that BaseForm.process will accept the object
+              for the named form, and eventually it will end up in
+              SelectMultipleField.process_data and get assigned to .data
             """
             setattr(self, name, choices)
     for beaver_attendance in beaver_attendances:
         selected.append(beaver_attendance.beaver_id)
 
-    selectedChoices = ChoiceObj('beavers', selected )
+    selectedChoices = ChoiceObj('beavers', selected)
     form = BeaverAttendanceForm(obj=selectedChoices)
     form.beavers.choices = []
-
 
     for beaver in beavers:
         name = beaver.first_name + " " + beaver.surname
@@ -70,7 +83,6 @@ def register_beavers(attendance_id):
         form.beavers.choices.append(choice)
 
     if form.validate_on_submit():
-        print("Whoop",form.__dict__.keys())
         present = form.beavers.data
         print(present)
         print(selected)
@@ -83,16 +95,24 @@ def register_beavers(attendance_id):
         for beaver_id in selected:
             if (beaver_id not in present) and (beaver_id in selected):
                 print(beaver_id)
-                beaver_attendance = BeaverAttendance.query.filter_by(beaver_id=beaver_id,attendance_id=attendance_id).all()
+                beaver_attendance = BeaverAttendance.query.filter_by(beaver_id=beaver_id, attendance_id=attendance_id).all()
                 db.session.delete(beaver_attendance[0])  # needs index as query returns a list
                 db.session.commit()
     return render_template("register.html", beavers=beavers, form=form)
 
 
 class BeaverModelView(ModelView):
+    """
+    Custom view for Flask-Admin. Adds emergency contacts as inline model and
+    modifies update behaviour
+    """
     inline_models = (EmergencyContact,)  # comma needed for some reason
 
     def on_model_change(self, form, model, is_created):
+        """When a Beaver record is created or modified ensures that it has
+        a BeaverBadge record for all Badges and that the BeaverBadge has the
+        correct criteria
+        """
         badges = db.session.query(Badge).all()
         for badge in badges:
             beaver_badges = []
@@ -116,9 +136,17 @@ class BeaverModelView(ModelView):
 
 
 class BadgeModelView(ModelView):
+    """
+    Custom view for Flask-Admin. Adds criterion as inline model and
+    modifies update behaviour
+    """
     inline_models = (Criterion,)
 
     def on_model_change(self, form, model, is_created):
+        """When a Badge record is created or modified ensures that it has
+        a BeaverBadge record for all Beavers and that the BeaverBadge has the
+        correct criteria
+        """
         beavers = db.session.query(Beaver).all()
         for beaver in beavers:
             beaver_badges = []
@@ -142,7 +170,13 @@ class BadgeModelView(ModelView):
 
 
 class TripModelView(ModelView):
+    """
+    Custom view for Flask-Admin modifying update behaviour
+    """
     def on_model_change(self, form, model, is_created):
+        """When a Trip record is created or modified ensures that it has
+        a BeaverTrip record for all Beavers.
+        """
         beavers = db.session.query(Beaver).all()
         for beaver in beavers:
             beaver_trips = []
@@ -158,11 +192,18 @@ class TripModelView(ModelView):
 
 
 class AttendanceModelView(ModelView):
+    """
+    Custom view for Flask-Admin. Adds BeaverAttendance as an inline view
+    """
     inline_models = (BeaverAttendance,)
 
 
 # Debugging only
 class BeaverBadgeModelView(ModelView):
+    """
+    Only used for debugging. Custom view for Flask-Admin. Adds BadgeCriterion
+    as an inline view
+    """
     inline_models = (BadgeCriterion,)
 
 
