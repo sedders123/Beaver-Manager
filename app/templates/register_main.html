@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 {% for attendance in attendances %}
-    <div><a href ="/register/{{ attendance.id }}"<p>ID: {{ attendance.id }} Date: {{ attendance.date }}</a></b></p></div>
+    <div><a href ="/registers/{{ attendance.id }}"<p>ID: {{ attendance.id }} Date: {{ attendance.date }}</a></b></p></div>
 {% endfor %}
 {% endblock %}

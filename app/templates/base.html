@@ -1,14 +1,17 @@
+{% from "head.html" import head %}
+{% from "_macros.html" import nav_link with context %}
 <html>
   <head>
-    {% if title %}
-    <title>{{ title }}</title>
-    {% else %}
-    <title>Beaver Manager</title>
-    {% endif %}
+    {% include "head.html" %}
   </head>
   <body>
-    <div>Manager: <a href="/index">Home</a></div>
-    <hr>
-    {% block content %}{% endblock %}
+    <div class="container">
+      {% include "navbar.html"%}
+      <div class="row">
+        <div class="span12">
+          {% block content %}{% endblock %}
+        </div> {# close span12 #}
+      </div> {# close row #}
+    </div> {# close conatiner #}
   </body>
 </html>

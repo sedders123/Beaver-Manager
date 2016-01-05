@@ -4,9 +4,7 @@
 {% block content %}
   <h1>Register Attendance</h1>
   <form action="" method="post" name="register">
-    {% for beaver in beavers %}
-      <p>{{beaver.first_name}} {{form.present}}</p>
-    {% endfor %}
+      {{ forms.render_form(form) }}
       <input type="submit" value="Submit">
   </form>
 {% endblock content %}

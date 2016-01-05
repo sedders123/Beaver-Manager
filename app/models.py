@@ -2,24 +2,18 @@ from app import db
 import sqlalchemy_utils
 
 
-class Address(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    line1 = db.Column(db.String(64))
-    line2 = db.Column(db.String(64))
-    town = db.Column(db.String(64))
-    county = db.Column(db.String(64))
-    postcode = db.Column(db.String(64))
-
-
 class EmergencyContact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
     first_name = db.Column(db.String(64))
     surname = db.Column(db.String(64))
     email = db.Column(db.String(256))
-    address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
-    address = db.relationship('Address', backref="emergency_contact")
     phone_number = db.Column(db.String(11))
+    address_line1 = db.Column(db.String(64))
+    address_line2 = db.Column(db.String(64))
+    town = db.Column(db.String(64))
+    county = db.Column(db.String(64))
+    postcode = db.Column(db.String(64))
 
     def __repr__(self):
         return '<EmergencyContact %r> for: ' % (self.first_name,
@@ -153,6 +147,11 @@ class BeaverAttendance(db.Model):
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
     beaver = db.relationship('Beaver', backref="attendances")
     present = db.Column(db.Boolean)
+
+    def __init__(self, attendance_id, beaver_id, present):
+        self.attendance_id = attendance_id
+        self.beaver_id = beaver_id
+        self.present = present
 
     def __repr__(self):
         return '<BeaverAttendance %r> for: %r' % (self.id, self.beaver_id)

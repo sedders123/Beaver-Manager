@@ -1,6 +1,18 @@
 {% extends "base.html" %}
+{% from "_forms.html" import render_field %}
+{% set sort_on = request.args.sort_on|default('surname') %}
+
 {% block content %}
-{% for beaver in beavers %}
-    <div><p>ID: {{ beaver.id }} Name: {{ beaver.first_name }} Surname: {{ beaver.surname }} </b></p></div>
+<form class="form-inline">
+  <div class="form-group">
+    <label >Sort By:</label>
+    {{ form.sort_on()|safe }}
+  </div>
+  <div class="form-group">
+    <input type="submit" value="Sort">
+  </div>
+</form>
+{% for beaver in beavers|sort(attribute=sort_on) %}
+    <div><p>Name: {{ beaver.first_name }} {{ beaver.surname }} Lodge: {{ beaver.lodge.name }}</p></div>
 {% endfor %}
 {% endblock %}

@@ -23,7 +23,8 @@ def index():
 def beavers():
     """Queries the database for all beavers then displays a list of them"""
     beavers = Beaver.query.all()
-    return render_template("beavers.html", beavers=beavers)
+    sort_form = SortForm()
+    return render_template("beavers.html", beavers=beavers, form=sort_form)
 
 
 @app.route('/beavers/<beaver_id>')
@@ -44,10 +45,49 @@ def register_main():
 def register_beavers(attendance_id):
     """Displays a form to record beaver atendance"""
     beavers = Beaver.query.all()
-    form = BeaverAttendanceForm()
+    beaver_attendances = BeaverAttendance.query.all()
+    selected = []
+
+    class ChoiceObj(object):
+        def __init__(self, name, choices):
+            """
+              This is needed so that BaseForm.process will accept the object for the named form,
+              and eventually it will end up in SelectMultipleField.process_data and get assigned
+              to .data
+            """
+            setattr(self, name, choices)
+    for beaver_attendance in beaver_attendances:
+        selected.append(beaver_attendance.beaver_id)
+
+    selectedChoices = ChoiceObj('beavers', selected )
+    form = BeaverAttendanceForm(obj=selectedChoices)
+    form.beavers.choices = []
+
+
+    for beaver in beavers:
+        name = beaver.first_name + " " + beaver.surname
+        choice = (beaver.id, name)
+        form.beavers.choices.append(choice)
+
     if form.validate_on_submit():
-        print(form.__dict__.keys())
+        print("Whoop",form.__dict__.keys())
+        present = form.beavers.data
+        print(present)
+        print(selected)
+        for beaver_id in present:
+            if beaver_id not in selected:
+                beaver_attendance = BeaverAttendance(attendance_id, beaver_id,
+                                                     True)
+                db.session.add(beaver_attendance)
+                db.session.commit()
+        for beaver_id in selected:
+            if (beaver_id not in present) and (beaver_id in selected):
+                print(beaver_id)
+                beaver_attendance = BeaverAttendance.query.filter_by(beaver_id=beaver_id,attendance_id=attendance_id).all()
+                db.session.delete(beaver_attendance[0])  # needs index as query returns a list
+                db.session.commit()
     return render_template("register.html", beavers=beavers, form=form)
+
 
 class BeaverModelView(ModelView):
     inline_models = (EmergencyContact,)  # comma needed for some reason
