@@ -10,3 +10,4 @@ sphinx
 sphinx-rtd-theme
 sphinxcontrib-napoleon
 sphinxcontrib-httpdomain
+flask-login
