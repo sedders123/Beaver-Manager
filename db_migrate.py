@@ -1,3 +1,4 @@
+"""Mirates SQLAlchemy databse to newer models"""
 #!flask/bin/python
 import imp
 from migrate.versioning import api

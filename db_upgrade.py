@@ -1,3 +1,4 @@
+"""Upgrades SQLAlchemy database to latest revision"""
 #!flask/bin/python
 from migrate.versioning import api
 from config import SQLALCHEMY_DATABASE_URI
