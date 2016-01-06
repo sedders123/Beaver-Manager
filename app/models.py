@@ -222,6 +222,17 @@ class BadgeCriterion(db.Model):
 
 
 class Trip(db.Model):
+    """
+    A model for a Trip.
+
+    Attributes:
+        id (int): Unique Primary Key.
+        location (str): Place Name
+        cost (numeric): Cost of trip [Max Value of 99999.99]
+        date (DateTime): Date of trip
+        overnight (bool): Whether trip is overight
+        number_of_nights (int): Number of nights the trip is
+    """
     __tablename__ = "trip"
     id = db.Column(db.Integer, primary_key=True)
     location = db.Column(db.String(128))
@@ -231,6 +242,9 @@ class Trip(db.Model):
     number_of_nights = db.Column(db.Integer)
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `Trip`
+        """
         return '<Trip %r> to %r' % (self.id, self.location)
 
 
