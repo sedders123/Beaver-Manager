@@ -17,7 +17,6 @@ Contents:
    db_downgrade
    db_migrate
    db_upgrade
-   run
    API
 
 
