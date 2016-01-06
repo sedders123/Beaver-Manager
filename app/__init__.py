@@ -1,3 +1,6 @@
+"""
+Beaver Management app using flask
+"""
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 
