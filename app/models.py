@@ -305,8 +305,9 @@ class Attendance(db.Model):
         id (int): Unique Primary Key.
         date (DateTime): Date of meeting
         criterion_id (int): Foreign key for :class:`Criterion`
-        criterion (:class:`Criterion`): Provides a link to the :class:`Criterion`
-                                        that Attendance is asscociated with
+        criterion (:class:`Criterion`): Provides a link to the
+                                        :class:`Criterion` that Attendance is
+                                        asscociated with
     """
     __tablename__ = "attendance"
     id = db.Column(db.Integer, primary_key=True)

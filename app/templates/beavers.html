@@ -18,6 +18,7 @@
       <th>First Name</th>
       <th>Surname</th>
       <th>Lodge</th>
+      <th>Phone Number</th>
     </tr>
   </thead>
   <tbody>
@@ -30,6 +31,9 @@
         {{ beaver.surname }}
       <td>
         {{ beaver.lodge.name }}
+      </td>
+      <td>
+        {{ beaver.contacts[0].phone_number}}
       </td>
     </tr>
   {% endfor %}

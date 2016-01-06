@@ -1,24 +1,55 @@
 {% extends "base.html" %}
 {% block content %}
-  <p>Name: {{beaver.first_name}} {{beaver.surname}} </p>
-  <p>Date of Birth: {{beaver.dob}} </p>
-  <p>Lodge: {{beaver.lodge.name}} </p>
-  <h2>Emergency Contacts:</h2>
-  {% for contact in beaver.contacts %}
-    {% set name = contact.first_name + " " + contact.surname %}
-    <div class="container">
-      <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#info{{contact.id}}">{{name}}</button>
-      <div id="info{{contact.id}}" class="collapse">
-        <p>Email: {{contact.email}}</p>
-        <p>Phone Number: {{contact.phone_number}}</p>
-        <p>Address Line 1: {{contact.address_line1}}</p>
-        <p>Address Line 2: {{contact.address_line2}}</p>
-        <p>Town: {{contact.town}}</p>
-        <p>County: {{contact.county}}</p>
-        <p>Post Code: {{contact.postcode}}</p>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-sm-12">
+        <p>Name: {{beaver.first_name}} {{beaver.surname}} </p>
+        <p>Date of Birth: {{beaver.dob}} </p>
+        <p>Lodge: {{beaver.lodge.name}} </p>
+      </div>
+      <div class="col-md-6 col-sm-12">
+        <!---Stuff to go here --->
       </div>
     </div>
-  </br>
-  {% endfor %}
-
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-sm-12">
+      <h2>Emergency Contacts:</h2>
+      {% for contact in beaver.contacts %}
+        {% set name = contact.first_name + " " + contact.surname %}
+        <div class="container">
+          <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#info{{contact.id}}">{{name}}</button>
+          <div id="info{{contact.id}}" class="collapse">
+            <p>Email: {{contact.email}}</p>
+            <p>Phone Number: {{contact.phone_number}}</p>
+            <p>Address Line 1: {{contact.address_line1}}</p>
+            <p>Address Line 2: {{contact.address_line2}}</p>
+            <p>Town: {{contact.town}}</p>
+            <p>County: {{contact.county}}</p>
+            <p>Post Code: {{contact.postcode}}</p>
+          </div>
+        </div>
+        </br>
+      {% endfor %}
+    </div>
+    <div class="col-md-6 col-sm-12">
+      {% set chartID = "chart_" + {{ beaver.id }} %}
+      <div id={{ chartID }} class="chart" style="height: 100px; width: 500px"></div>
+      <script>
+        var chart_id = {{ chartID }}
+        var series = [{
+            type: 'pie',
+            name: 'Attendance',
+            data: [
+                ['Present', {{ present }}],
+                ['Absent', {{ absent }}],
+            ]
+          }]
+        var title = {{ title }}
+        var xAxis = {{ xAxis }}
+        var yAxis = {{ yAxis }}
+        var chart = {"renderTo": {{chartID}}, "type": 'pie',}
+      </script>
+    </div>
+  </div>
 {% endblock %}

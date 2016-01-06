@@ -14,73 +14,29 @@ from app import app, db
 from .models import *
 from .views import *
 from .forms import *
+from .logic import *
 
 admin = Admin(app, name='beavermanager', template_mode='bootstrap3')
-
-
-def update_criterion(attendance):
-    """
-    Check whether a beaver was present for a given attendance and if so sets
-    the corrosponding ``criterion.completed`` to True
-
-    Args:
-        attendance (Attendance): The attendance for which criterion need
-                                   updating
-    """
-    for beaver_attendance in attendance.beaver_attendances:
-        for badge in beaver_attendance.beaver.badges:
-            for criterion in badge.criteria:
-                if criterion.criterion_id == attendance.criterion_id:
-                    if beaver_attendance.present:
-                        criterion.completed = True
-                        db.session.commit()
-                    else:
-                        criterion.completed = False
-                        db.session.commit()
-
-
-def update_beaver_badge(beaver_badge):
-    """
-    Checks to see if all the criteria are completed for ``beaver_badge`` and
-    if so sets ``beaver_badge.completed`` to True
-
-    Args:
-        beaver_badge (:class:`BeaverBadge`): The beaver badge which need
-        checking
-    """
-    completed = 0
-    for criterion in beaver_badge.criteria:
-        if criterion.completed:
-            completed += 1
-    if completed == len(beaver_badge.criteria):
-        beaver_badge.completed = True
-        db.session.commit()
-    else:
-        beaver_badge.completed = False
-        db.session.commit()
-
 
 
 @app.route('/')
 @app.route('/index')
 def index():
     """Displays the homepage"""
+    sort_form = SortForm()
+    attendances = Attendance.query.all()
+    for attendance in attendances:
+        update_criterion(attendance)
+        beaver_badges = BeaverBadge.query.all()
+        for beaver_badge in beaver_badges:
+            update_beaver_badge(beaver_badge)
     return render_template("index.html", title='Home')
 
 
 @app.route('/beavers')
 def beavers():
-    """Queries the database for all beavers then displays a list of them"""
     beavers = Beaver.query.all()
-    sort_form = SortForm()
-    attendances = Attendance.query.all()
-    for attendance in attendances:
-        print(attendance)
-        update_criterion(attendance)
-    beaver_badges = BeaverBadge.query.all()
-    for beaver_badge in beaver_badges:
-        print(beaver_badge)
-        update_beaver_badge(beaver_badge)
+    """Queries the database for all beavers then displays a list of them"""
     return render_template("beavers.html", beavers=beavers, form=sort_form)
 
 
@@ -92,7 +48,22 @@ def beaver_individual(beaver_id):
         beaver_id (int): The ID number of the beaver record
     """
     beaver = Beaver.query.get(beaver_id)
-    return render_template("beaver.html", beaver=beaver)
+    beaver_attendances = beaver.beaver_attendances
+    total = 0
+    present = 0
+    absent = 0
+    for beaver_attendance in beaver_attendances:
+        total += 1
+        if beaver_attendance.present:
+            present += 1
+        else:
+            absent += 1
+    present = to_percent(present, total)
+    absent = to_percent(absent, total)
+    # http://www.highcharts.com/demo/3d-pie
+    # https://gist.github.com/vgoklani/5347161
+    return render_template("beaver.html", beaver=beaver, present=present,
+                           absent=absent)
 
 
 @app.route('/registers')
@@ -143,8 +114,6 @@ def register_beavers(attendance_id):
 
     if form.validate_on_submit():
         present = form.beavers.data
-        print(present)
-        print(selected)
         for beaver in beavers:
             beaver_attendance_list = BeaverAttendance.query.filter_by(beaver_id=beaver.id, attendance_id=attendance_id).all()
             try:
@@ -196,7 +165,7 @@ class BeaverModelView(ModelView):
                 beaver_badge = BeaverBadge(model.id, badge.id, False)
                 db.session.add(beaver_badge)
                 db.session.commit()
-                print("Created Badge")
+                app.logger.info("Created Badge")
 
                 for criterion in badge.criteria:
                     badge_id = badge.id
@@ -204,9 +173,9 @@ class BeaverModelView(ModelView):
                                                      False)
                     db.session.add(badge_criterion)
                     db.session.commit()
-                    print("Criterion Created")
+                    app.logger.info("Criterion Created")
             else:
-                print("Badge not created")
+                app.logger.info("Badge not created")
 
 
 class BadgeModelView(ModelView):
@@ -230,7 +199,7 @@ class BadgeModelView(ModelView):
                 beaver_badge = BeaverBadge(beaver.id, model.id, False)
                 db.session.add(beaver_badge)
                 db.session.commit()
-                print("Created Badge")
+                app.logger.info("Created Badge")
 
                 for criterion in model.criteria:
                     badge_id = beaver_badge.id  # badge[0].id
@@ -238,9 +207,9 @@ class BadgeModelView(ModelView):
                                                      False)
                     db.session.add(badge_criterion)
                     db.session.commit()
-                    print("Criterion Created")
+                    app.logger.info("Criterion Created")
             else:
-                print("Badge not created")
+                app.logger.info("Badge not created")
 
 
 class TripModelView(ModelView):
@@ -260,9 +229,9 @@ class TripModelView(ModelView):
                 beaver_trip = BeaverTrip(beaver.id, model.id, False, False)
                 db.session.add(beaver_trip)
                 db.session.commit()
-                print("BeaverTrip Created")
+                app.logger.info("BeaverTrip Created")
             else:
-                print("BeaverTrip not created")
+                app.logger.info("BeaverTrip not created")
 
 
 class AttendanceModelView(ModelView):
