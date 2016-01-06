@@ -1,8 +1,7 @@
+"""Module to control email"""
 import sendgrid
 
 key = "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"
-
-
 sg = sendgrid.SendGridClient(key)
 
 
