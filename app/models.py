@@ -1,8 +1,30 @@
+"""
+This module contains SQLAlchemy model definitions to create SQL tables
+"""
 from app import db
 import sqlalchemy_utils
 
 
 class EmergencyContact(db.Model):
+    """
+    Model for an Emergency contact
+
+    Attributes:
+        id (int): Unique Primary Key.
+        beaver_id (int): Foreign Key for the `Beaver` table
+        beaver (Beaver): Provides direct access to the `Beaver` that is linked
+                         to the contact
+        first_name (str): The contact's first name
+        surname (str): The contact's surname
+        email (str): The contact's email
+        phone_number (str): The contact's phone number
+        address_line1 (str): The contact's first address line
+        address_line2 (str): The contact's first second address line
+        town (str): The town in which the Contact lives
+        county (str): The county in which the Contact lives
+        postcode (str): The contact's postcode
+
+    """
     id = db.Column(db.Integer, primary_key=True)
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
     first_name = db.Column(db.String(64))
@@ -16,11 +38,24 @@ class EmergencyContact(db.Model):
     postcode = db.Column(db.String(64))
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `EmergencyContact`
+        """
         return '<EmergencyContact %r> for: ' % (self.first_name,
                                                 self.beaver_id)
 
 
 class Beaver(db.Model):
+    """
+    Model for a beaver
+
+    Attributes:
+        id (int): Unique Primary Key.
+        first_name (str): The beaver's first name
+        surname (str): The beaver's surname
+        dob (DateTime): The beaver's date of birth
+        lodge_id (int): Foreign key for `Lodge` table
+    """
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(64))
     surname = db.Column(db.String(64))
@@ -30,6 +65,9 @@ class Beaver(db.Model):
                                lazy="dynamic")
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `Beaver`
+        """
         return '<Beaver %r>' % (self.first_name + " " + self.surname)
 
 
@@ -39,6 +77,9 @@ class Lodge(db.Model):
     beavers = db.relationship('Beaver', backref="lodge", lazy="dynamic")
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `Lodge`
+        """
         return '<Lodge %r>' % self.name
 
 
@@ -135,6 +176,8 @@ class Attendance(db.Model):
     __tablename__ = "attendance"
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime)
+    criterion_id = db.Column(db.Integer, db.ForeignKey('criterion.id'))
+    criterion = db.relationship('Criterion', backref="attendances")
 
     def __repr__(self):
         return '<Attendance %r>' % (self.id)
@@ -143,7 +186,7 @@ class Attendance(db.Model):
 class BeaverAttendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     attendance_id = db.Column(db.Integer, db.ForeignKey('attendance.id'))
-    attendance = db.relationship('Attendance', backref="beaverattendances")
+    attendance = db.relationship('Attendance', backref="beaver_attendances")
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
     beaver = db.relationship('Beaver', backref="attendances")
     present = db.Column(db.Boolean)

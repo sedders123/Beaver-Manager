@@ -18,6 +18,8 @@ Contents:
    db_migrate
    db_upgrade
    run
+   API
+
 
 Indices and tables
 ==================

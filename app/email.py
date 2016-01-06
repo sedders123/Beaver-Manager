@@ -8,7 +8,7 @@ sg = sendgrid.SendGridClient(key)
 
 def send_message(recepient, subject, message):
     """
-    Sends email to recipent
+    Sends email to recipent using the ``sendgrid`` module
 
     Args:
         recepient (str): In form "John Doe <john.doe@example.com>"

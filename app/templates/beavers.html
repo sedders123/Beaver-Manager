@@ -12,7 +12,27 @@
     <input type="submit" value="Sort">
   </div>
 </form>
-{% for beaver in beavers|sort(attribute=sort_on) %}
-    <div><p>Name: {{ beaver.first_name }} {{ beaver.surname }} Lodge: {{ beaver.lodge.name }}</p></div>
-{% endfor %}
+<table class="table table-bordered table-hover table-responsive">
+  <thead>
+    <tr>
+      <th>First Name</th>
+      <th>Surname</th>
+      <th>Lodge</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for beaver in beavers|sort(attribute=sort_on) %}
+    <tr class="clickable-row" data-href="/beavers/{{beaver.id}}">
+      <td>
+        {{ beaver.first_name }}
+      </td>
+      <td>
+        {{ beaver.surname }}
+      <td>
+        {{ beaver.lodge.name }}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

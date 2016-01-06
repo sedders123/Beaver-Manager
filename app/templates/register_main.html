@@ -1,6 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
+<table class="table table-bordered table-hover table-responsive">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Total Present</th>
+    </tr>
+  </thead>
+  <tbody>
 {% for attendance in attendances %}
-    <div><a href ="/registers/{{ attendance.id }}"<p>ID: {{ attendance.id }} Date: {{ attendance.date }}</a></b></p></div>
+  <tr class="clickable-row" data-href="/registers/{{ attendance.id }}">
+    <td>{{ attendance.date }}</td>
+    <td>{{ total_present[attendance.id]}}</td>
+  </tr>
 {% endfor %}
+</tbody>
+</table>
 {% endblock %}

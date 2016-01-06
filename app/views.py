@@ -18,6 +18,27 @@ from .forms import *
 admin = Admin(app, name='beavermanager', template_mode='bootstrap3')
 
 
+def update_criterion(attendance):
+    """
+    Check whether a beaver was present for a given attendance and if so sets
+    the corrosponding ``criterion.completed`` to True
+
+    Args:
+        attendance (Attendance): The attendance for which criterion need
+                                   updating
+    """
+    beaver_attendances = BeaverAttendance.query.all()
+    beaver_badges = BeaverBadge.query.all()
+    for beaver_attendance in beaver_attendances:
+        if beaver_attendance.attendance_id == attendance.id:
+            for badge in beaver_badges:
+                if beaver_attendance.beaver_id == badge.beaver_id:
+                    criterion_id = attendance.criterion_id
+                    badge_id = badge.badge_id
+                    criteria = BadgeCriterion.query.filter_by(criterion_id=criterion_id, badge_id=badge_id).all()
+                    for criterion in criteria:
+                        criterion.completed = True
+                        db.session.commit()
 @app.route('/')
 @app.route('/index')
 def index():
@@ -48,7 +69,14 @@ def beaver_individual(beaver_id):
 def register_main():
     """Displays a list displaying dates for which registers can be taken"""
     attendances = Attendance.query.all()
-    return render_template("register_main.html", attendances=attendances)
+    total_present = {}
+    for attendance in attendances:
+        total_present[attendance.id] = 0
+        for beaver_attendance in attendance.beaver_attendances:
+            if beaver_attendance.present:
+                total_present[attendance.id] += 1
+    return render_template("register_main.html", attendances=attendances,
+                           total_present=total_present)
 
 
 @app.route('/registers/<attendance_id>', methods=['GET', 'POST'])
@@ -71,7 +99,8 @@ def register_beavers(attendance_id):
             """
             setattr(self, name, choices)
     for beaver_attendance in beaver_attendances:
-        selected.append(beaver_attendance.beaver_id)
+        if beaver_attendance.present:
+            selected.append(beaver_attendance.beaver_id)
 
     selectedChoices = ChoiceObj('beavers', selected)
     form = BeaverAttendanceForm(obj=selectedChoices)
@@ -86,18 +115,31 @@ def register_beavers(attendance_id):
         present = form.beavers.data
         print(present)
         print(selected)
-        for beaver_id in present:
-            if beaver_id not in selected:
-                beaver_attendance = BeaverAttendance(attendance_id, beaver_id,
-                                                     True)
-                db.session.add(beaver_attendance)
-                db.session.commit()
-        for beaver_id in selected:
-            if (beaver_id not in present) and (beaver_id in selected):
-                print(beaver_id)
-                beaver_attendance = BeaverAttendance.query.filter_by(beaver_id=beaver_id, attendance_id=attendance_id).all()
-                db.session.delete(beaver_attendance[0])  # needs index as query returns a list
-                db.session.commit()
+        for beaver in beavers:
+            beaver_attendance_list = BeaverAttendance.query.filter_by(beaver_id=beaver.id, attendance_id=attendance_id).all()
+            try:
+                beaver_attendance = beaver_attendance_list[0]
+            except:
+                beaver_attendance = None
+            if beaver.id in present:
+                if beaver_attendance is None:
+                    beaver_attendance = BeaverAttendance(attendance_id, beaver.id,
+                                                         True)
+                    db.session.add(beaver_attendance)
+                    db.session.commit()
+                else:
+                    beaver_attendance.present = True
+                    db.session.commit()
+
+            elif beaver.id not in present:
+                    if beaver_attendance is None:
+                        beaver_attendance = BeaverAttendance(attendance_id, beaver.id,
+                                                             False)
+                        db.session.add(beaver_attendance)
+                        db.session.commit()
+                    else:
+                        beaver_attendance.present = False
+                        db.session.commit()
     return render_template("register.html", beavers=beavers, form=form)
 
 
@@ -114,10 +156,10 @@ class BeaverModelView(ModelView):
         correct criteria
         """
         badges = db.session.query(Badge).all()
+        beaver_badges = []
+        for badge in model.badges:
+            beaver_badges.append(badge.badge_id)
         for badge in badges:
-            beaver_badges = []
-            for badge in model.badges:
-                beaver_badges.append(badge.badge_id)
             if badge.id not in beaver_badges:
                 beaver_badge = BeaverBadge(model.id, badge.id, False)
                 db.session.add(beaver_badge)
@@ -125,7 +167,7 @@ class BeaverModelView(ModelView):
                 print("Created Badge")
 
                 for criterion in badge.criteria:
-                    badge_id = model.id
+                    badge_id = badge.id
                     badge_criterion = BadgeCriterion(criterion.id, badge_id,
                                                      False)
                     db.session.add(badge_criterion)
