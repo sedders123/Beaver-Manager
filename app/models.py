@@ -11,9 +11,9 @@ class EmergencyContact(db.Model):
 
     Attributes:
         id (int): Unique Primary Key.
-        beaver_id (int): Foreign Key for the `Beaver` table
-        beaver (Beaver): Provides direct access to the `Beaver` that is linked
-                         to the contact
+        beaver_id (int): Foreign Key for the :class:`Beaver` table
+        beaver (Beaver): Provides direct access to the :class:`Beaver` that is
+        linked to the contact
         first_name (str): The contact's first name
         surname (str): The contact's surname
         email (str): The contact's email
@@ -54,7 +54,14 @@ class Beaver(db.Model):
         first_name (str): The beaver's first name
         surname (str): The beaver's surname
         dob (DateTime): The beaver's date of birth
-        lodge_id (int): Foreign key for `Lodge` table
+        lodge_id (int): Foreign key for :class:`Lodge` table
+        lodge_id (int): Provides direct access to the :class:`Lodge` that is
+                        that is linked to the beaver
+        contacts (list[:class:`EmergencyContact`]): A list of
+                                                    :class:`EmergencyContact`
+                                                    associated with the beaver
+        badges (list[:class:`BeaverBadge`]): A list of :class:`BeaverBadge`
+                                             associated with the beaver
     """
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(64))
@@ -72,6 +79,15 @@ class Beaver(db.Model):
 
 
 class Lodge(db.Model):
+    """
+    Model for a Lodge (group of beavers)
+
+    Attributes:
+        id (int): Unique Primary Key.
+        name (str): Name of the lodge
+        beavers (list[:class:`Beaver`]): A list of beavers asscociated with the
+                                         lodge
+    """
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     beavers = db.relationship('Beaver', backref="lodge", lazy="dynamic")
@@ -84,6 +100,16 @@ class Lodge(db.Model):
 
 
 class Badge(db.Model):
+    """
+    Model for a Badge
+
+    Attributes:
+        id (int): Unique Primary Key.
+        name (str): Name of the badge
+        img_url (str): URL for the badge image
+        beavers_badges (list[:class:`BeaverBadge`]): A list of beavers_badges
+                                                     asscociated with the lodge
+    """
     __tablename__ = "badge"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
@@ -92,10 +118,28 @@ class Badge(db.Model):
                                     lazy="dynamic")
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `Badge`
+        """
         return '<Badge %r>' % self.name
 
 
 class BeaverBadge(db.Model):
+    """
+    Model for a BeaverBadge. Acts as an intermediary between :class:`Beaver`
+    and :class:`Badge`
+
+    Args:
+        beaver_id (int): Foreign key for :class:`Beaver`
+        badge_id (int): Foreign key for :class:`Badge`
+        completed (bool): Represents whether the badge has been completed or
+                          not
+
+    Attributes:
+        id (int): Unique Primary Key.
+        beaver (:class:`Beaver`): Provides a link to the :class:`Beaver` that
+                                  badge is asscociated with
+    """
     __tablename__ = "beaverbadge"
     id = db.Column(db.Integer, primary_key=True)
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
@@ -109,10 +153,23 @@ class BeaverBadge(db.Model):
         self.completed = completed
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `BeaverBadge`
+        """
         return '<BeaverBadge %r> for: %r' % (self.id, self.beaver_id)
 
 
 class Criterion(db.Model):
+    """
+    Model for a Criterion.
+
+    Attributes:
+        id (int): Unique Primary Key.
+        badge_id (int): Foreign key for :class:`Badge`
+        badge (:class:`Badge`): Provides a link to the :class:`Badge` that
+                                  criterion is asscociated with
+        description (str): Desription of criterion
+    """
     __tablename__ = "criterion"
     id = db.Column(db.Integer, primary_key=True)
     badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'))
@@ -120,10 +177,31 @@ class Criterion(db.Model):
     description = db.Column(db.String(128))
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `Criterion`
+        """
         return '<Criterion %r> Desc: %r' % (self.id, self.description)
 
 
 class BadgeCriterion(db.Model):
+    """
+    Model for a BadgeCriterion.
+
+    Args:
+        criterion_id (int): Foreign key for :class:`Criterion`
+        badge_id (int): Foreign key for :class:`Badge`
+        completed (bool): Represents whether the criterion has been completed
+                          or not
+
+    Attributes:
+        id (int): Unique Primary Key.
+        criterion (:class:`Crterion`): Provides a link to the
+                                       :class:`Criterion` that criterion is
+                                       asscociated with
+        badge (:class:`Badge`): Provides a link to the :class:`Badge` that
+                                  criterion is asscociated with
+        description (str): Desription of criterion
+    """
     id = db.Column(db.Integer, primary_key=True)
     criterion_id = db.Column(db.Integer, db.ForeignKey('criterion.id'))
     criterion = db.relationship('Criterion', backref="criteria")
@@ -137,6 +215,9 @@ class BadgeCriterion(db.Model):
         self.completed = completed
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `BadgeCriterion`
+        """
         return '<BadgeCriterion %r> for Badge: %r' % (self.id, self.badge_id)
 
 

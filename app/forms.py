@@ -21,4 +21,5 @@ class BeaverAttendanceForm(Form):
 
 class SortForm(Form):
     sort_on = SelectField('Sort By', choices=[('surname', 'Surname'),
-                         ('first_name', 'First Name'), ('lodge.name', 'Lodge')])
+                          ('first_name', 'First Name'),
+                          ('lodge.name', 'Lodge')])

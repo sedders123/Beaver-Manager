@@ -123,7 +123,8 @@ def register_beavers(attendance_id):
                 beaver_attendance = None
             if beaver.id in present:
                 if beaver_attendance is None:
-                    beaver_attendance = BeaverAttendance(attendance_id, beaver.id,
+                    beaver_attendance = BeaverAttendance(attendance_id,
+                                                         beaver.id,
                                                          True)
                     db.session.add(beaver_attendance)
                     db.session.commit()
@@ -133,7 +134,8 @@ def register_beavers(attendance_id):
 
             elif beaver.id not in present:
                     if beaver_attendance is None:
-                        beaver_attendance = BeaverAttendance(attendance_id, beaver.id,
+                        beaver_attendance = BeaverAttendance(attendance_id,
+                                                             beaver.id,
                                                              False)
                         db.session.add(beaver_attendance)
                         db.session.commit()
