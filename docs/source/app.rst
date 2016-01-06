@@ -1,6 +1,11 @@
 app package
 ===========
 
+.. automodule:: app
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -31,15 +36,6 @@ app.views module
 ----------------
 
 .. automodule:: app.views
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: app
     :members:
     :undoc-members:
     :show-inheritance:
