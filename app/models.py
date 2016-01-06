@@ -59,9 +59,13 @@ class Beaver(db.Model):
                         that is linked to the beaver
         contacts (list[:class:`EmergencyContact`]): A list of
                                                     :class:`EmergencyContact`
-                                                    associated with the beaver
+                                                    objects associated with the
+                                                    beaver
         badges (list[:class:`BeaverBadge`]): A list of :class:`BeaverBadge`
                                              associated with the beaver
+        beaver_attendances (list[:class:`BeaverAttendance`]):
+                                        A list of :class:`BeaverAttendance`
+                                        objects associated with the beaver
     """
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(64))
@@ -156,7 +160,7 @@ class BeaverBadge(db.Model):
         """
         Returns a more human readable represantation of `BeaverBadge`
         """
-        return '<BeaverBadge %r> for: %r' % (self.id, self.beaver_id)
+        return '<BeaverBadge %r> for: %r' % (self.id, self.beaver.first_name)
 
 
 class Criterion(db.Model):
@@ -338,7 +342,7 @@ class BeaverAttendance(db.Model):
     attendance_id = db.Column(db.Integer, db.ForeignKey('attendance.id'))
     attendance = db.relationship('Attendance', backref="beaver_attendances")
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
-    beaver = db.relationship('Beaver', backref="attendances")
+    beaver = db.relationship('Beaver', backref="beaver_attendances")
     present = db.Column(db.Boolean)
 
     def __init__(self, attendance_id, beaver_id, present):

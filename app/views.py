@@ -27,18 +27,40 @@ def update_criterion(attendance):
         attendance (Attendance): The attendance for which criterion need
                                    updating
     """
-    beaver_attendances = BeaverAttendance.query.all()
-    beaver_badges = BeaverBadge.query.all()
-    for beaver_attendance in beaver_attendances:
-        if beaver_attendance.attendance_id == attendance.id:
-            for badge in beaver_badges:
-                if beaver_attendance.beaver_id == badge.beaver_id:
-                    criterion_id = attendance.criterion_id
-                    badge_id = badge.badge_id
-                    criteria = BadgeCriterion.query.filter_by(criterion_id=criterion_id, badge_id=badge_id).all()
-                    for criterion in criteria:
+    for beaver_attendance in attendance.beaver_attendances:
+        for badge in beaver_attendance.beaver.badges:
+            for criterion in badge.criteria:
+                if criterion.criterion_id == attendance.criterion_id:
+                    if beaver_attendance.present:
                         criterion.completed = True
                         db.session.commit()
+                    else:
+                        criterion.completed = False
+                        db.session.commit()
+
+
+def update_beaver_badge(beaver_badge):
+    """
+    Checks to see if all the criteria are completed for ``beaver_badge`` and
+    if so sets ``beaver_badge.completed`` to True
+
+    Args:
+        beaver_badge (:class:`BeaverBadge`): The beaver badge which need
+        checking
+    """
+    completed = 0
+    for criterion in beaver_badge.criteria:
+        if criterion.completed:
+            completed += 1
+    if completed == len(beaver_badge.criteria):
+        beaver_badge.completed = True
+        db.session.commit()
+    else:
+        beaver_badge.completed = False
+        db.session.commit()
+
+
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -51,6 +73,14 @@ def beavers():
     """Queries the database for all beavers then displays a list of them"""
     beavers = Beaver.query.all()
     sort_form = SortForm()
+    attendances = Attendance.query.all()
+    for attendance in attendances:
+        print(attendance)
+        update_criterion(attendance)
+    beaver_badges = BeaverBadge.query.all()
+    for beaver_badge in beaver_badges:
+        print(beaver_badge)
+        update_beaver_badge(beaver_badge)
     return render_template("beavers.html", beavers=beavers, form=sort_form)
 
 
