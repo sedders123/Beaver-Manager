@@ -1,0 +1,12 @@
+flask
+flask_admin
+flask_sqlalchemy
+flask_wtf
+WTForms
+sqlalchemy_utils
+sqlalchemy-migrate
+sendgrid
+sphinx
+sphinx-rtd-theme
+sphinxcontrib-napoleon
+sphinxcontrib-httpdomain
