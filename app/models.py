@@ -185,11 +185,12 @@ class Criterion(db.Model):
 
 class BadgeCriterion(db.Model):
     """
-    Model for a BadgeCriterion.
+    Model for a BadgeCriterion. Acts as an intermediary between
+    :class:`BeaverBadge` and :class:`Criterion`
 
     Args:
         criterion_id (int): Foreign key for :class:`Criterion`
-        badge_id (int): Foreign key for :class:`Badge`
+        badge_id (int): Foreign key for :class:`BeaverBadge`
         completed (bool): Represents whether the criterion has been completed
                           or not
 
@@ -198,8 +199,9 @@ class BadgeCriterion(db.Model):
         criterion (:class:`Crterion`): Provides a link to the
                                        :class:`Criterion` that criterion is
                                        asscociated with
-        badge (:class:`Badge`): Provides a link to the :class:`Badge` that
-                                  criterion is asscociated with
+        badge (:class:`BeaverBadge`): Provides a link to the
+                                      :class:`BeaverBadge` that criterion is
+                                      asscociated with
         description (str): Desription of criterion
     """
     id = db.Column(db.Integer, primary_key=True)
@@ -249,6 +251,25 @@ class Trip(db.Model):
 
 
 class BeaverTrip(db.Model):
+    """
+    Model for a BeaverTrip. Acts as intermediary between :class:`Beaver` and
+    :class:`Trip`
+
+    Args:
+        beaver_id (int): Foreign key for :class:`Beaver`
+        trip_id (int): Foreign key for :class:`Trip`
+        permission (bool): Represents whether the criterion has been completed
+                          or not
+        paid (bool): Represents whether the criterion has been completed or not
+
+    Attributes:
+        id (int): Unique Primary Key.
+        beaver (:class:`Beaver`): Provides a link to the
+                                       :class:`Beaver` that BeaverTrip is
+                                       asscociated with
+        trip (:class:`Trip`): Provides a link to the :class:`Trip` that
+                                  BeaverTrip is asscociated with
+    """
     id = db.Column(db.Integer, primary_key=True)
     beaver_id = db.Column(db.Integer, db.ForeignKey('beaver.id'))
     beaver = db.relationship('Beaver', backref="trips")
@@ -264,10 +285,25 @@ class BeaverTrip(db.Model):
         self.paid = paid
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `BeaverTrip`
+        """
         return '<BeaverTrip %r> for: %r' % (self.id, self.beaver_id)
 
 
 class Attendance(db.Model):
+    """
+    A model for a meeting. Linked to a :class:`Criterion` to allow automatic
+    completetion of badges. If beaver was present for the meeting then the
+    criterion is completed.
+
+    Attributes:
+        id (int): Unique Primary Key.
+        date (DateTime): Date of meeting
+        criterion_id (int): Foreign key for :class:`Criterion`
+        criterion (:class:`Criterion`): Provides a link to the :class:`Criterion`
+                                        that Attendance is asscociated with
+    """
     __tablename__ = "attendance"
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime)
@@ -279,6 +315,25 @@ class Attendance(db.Model):
 
 
 class BeaverAttendance(db.Model):
+    """
+    Model for a BeaverAttendance. Acts as an intermediary between
+    :class:`Beaver` and :class:`Attendance`
+
+    Args:
+        attendance_id (int): Foreign key for :class:`Attendance`
+        beaver_id (int): Foreign key for :class:`Beaver`
+        present (bool): Represents whether the beaver was been presesnt or not
+
+    Attributes:
+        id (int): Unique Primary Key.
+        attendance (:class:`Attendance`): Provides a link to the
+                                          :class:`Attendance` that
+                                          BeaverAttendance is asscociated with
+
+        beaver (:class:`Beaver`): Provides a link to the
+                                       :class:`Beaver` that BeaverAttendance is
+                                       asscociated with
+    """
     id = db.Column(db.Integer, primary_key=True)
     attendance_id = db.Column(db.Integer, db.ForeignKey('attendance.id'))
     attendance = db.relationship('Attendance', backref="beaver_attendances")
@@ -292,4 +347,7 @@ class BeaverAttendance(db.Model):
         self.present = present
 
     def __repr__(self):
+        """
+        Returns a more human readable represantation of `BeaverAttendance`
+        """
         return '<BeaverAttendance %r> for: %r' % (self.id, self.beaver_id)
