@@ -39,3 +39,11 @@ app.views module
     :members:
     :undoc-members:
     :show-inheritance:
+
+app.logic module
+----------------
+
+.. automodule:: app.logic
+    :members:
+    :undoc-members:
+    :show-inheritance:

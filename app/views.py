@@ -1,8 +1,9 @@
 """
 This module contains the views for the app.
 
-Using the ``@app.route(path)`` function to route the request it then executes
-the nesecerrary code return a rendered template at the end.
+Using flasks :class:`route()<flask:flask.Flask.route>` function to route the
+request it then executes the nesecerrary code return a rendered template at
+the end.
 """
 from flask import render_template, flash, redirect, session, url_for, request, g, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
@@ -30,20 +31,23 @@ def index():
         beaver_badges = BeaverBadge.query.all()
         for beaver_badge in beaver_badges:
             update_beaver_badge(beaver_badge)
-    return render_template("index.html", title='Home')
+    test = ""  #: Doc Can be used to print variables during runtime
+    return render_template("index.html", html_title='Home', test=test)
 
 
 @app.route('/beavers')
 def beavers():
-    beavers = Beaver.query.all()
     """Queries the database for all beavers then displays a list of them"""
+    beavers = Beaver.query.all()
+    sort_form = SortForm()
     return render_template("beavers.html", beavers=beavers, form=sort_form)
 
 
 @app.route('/beavers/<beaver_id>')
-def beaver_individual(beaver_id):
+def beaver(beaver_id):
     """
     Displays Information about the given beaver
+
     Args:
         beaver_id (int): The ID number of the beaver record
     """
@@ -62,12 +66,45 @@ def beaver_individual(beaver_id):
     absent = to_percent(absent, total)
     # http://www.highcharts.com/demo/3d-pie
     # https://gist.github.com/vgoklani/5347161
-    return render_template("beaver.html", beaver=beaver, present=present,
-                           absent=absent)
+    chartID = "chart_" + str(beaver.id)
+    series = [{
+              'type': 'pie',
+              'name': 'Attendance',
+              'colorByPoint': 'true',
+              'data': [{
+                        'name': 'Present',
+                        'y': present
+                       },
+                       {
+                        'name': 'Absent',
+                        'y': absent
+                       }]
+              }]
+    title = {'text': 'Attendance'}
+    chart = {
+                'renderTo': chartID,
+                'type': 'pie',
+                'plotBorderWidth': 'null',
+                'plotShadow': 'false',
+            }
+    plot_options = {
+                'pie': {
+                        'allowPointSelect': 'true',
+                        'cursor': 'pointer',
+                        'dataLabels': '{'
+                                      'enabled: false'
+                                      '}',
+                        'showInLegend': 'true'
+                        }
+                    }
+    height = 40
+    return render_template("beaver.html", beaver=beaver, chartID=chartID,
+                           series=series, title=title, chart=chart,
+                           plot_options=plot_options, height=height)
 
 
 @app.route('/registers')
-def register_main():
+def registers():
     """Displays a list displaying dates for which registers can be taken"""
     attendances = Attendance.query.all()
     total_present = {}
@@ -81,9 +118,10 @@ def register_main():
 
 
 @app.route('/registers/<attendance_id>', methods=['GET', 'POST'])
-def register_beavers(attendance_id):
+def register(attendance_id):
     """
     Displays a form to record beavers atendance.
+
     Args:
         attendance_id (int): The ID number of the attendance record
     """

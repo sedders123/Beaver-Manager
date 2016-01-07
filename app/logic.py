@@ -4,6 +4,7 @@ This module contains any logic that does not belong in any other module
 
 from app import app, db
 
+
 def update_criterion(attendance):
     """
     Check whether a beaver was present for a given attendance and if so sets
@@ -31,7 +32,7 @@ def update_beaver_badge(beaver_badge):
     if so sets ``beaver_badge.completed`` to True
 
     Args:
-        beaver_badge (:class:`BeaverBadge`): The beaver badge which need
+        beaver_badge (BeaverBadge): The beaver badge which need
         checking
     """
     completed = 0
