@@ -33,12 +33,7 @@
       {% endfor %}
     </div>
     <div class="col-md-6 col-sm-12">
-      <!--- Beaver badge carosal to go here --->
-      {{ request.path }}
-      1
-      {{ request.script_root }}
-      1
-      {{ request.endpoint }}
+      {% include "badge_carousel.html" %}
     </div>
   </div>
 {% endblock %}
