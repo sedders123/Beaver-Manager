@@ -10,6 +10,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model import InlineFormAdmin
 from flask_admin import Admin
+import pusher
 
 from app import app, db
 from .models import *
@@ -18,6 +19,12 @@ from .forms import *
 from .logic import *
 
 admin = Admin(app, name='beavermanager', template_mode='bootstrap3')
+
+p = pusher.Pusher(
+  app_id='165123',
+  key='00ded34053ebced28ff5',
+  secret='3feabf30f6c57931afe5'
+)
 
 
 @app.route('/')

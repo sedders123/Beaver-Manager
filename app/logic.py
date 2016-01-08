@@ -72,25 +72,8 @@ def generate_toast(toast_type, message, title):
         message (str): Message to be displayed in the string
         title (str): Title for popup
     """
-    toastr_options = {
-                     '"closeButton": false',
-                     '"debug": false',
-                     '"newestOnTop": false',
-                     '"progressBar": false',
-                     '"positionClass": "toast-bottom-full-width"',
-                     '"preventDuplicates": false',
-                     '"onclick": null',
-                     '"showDuration": "300"',
-                     '"hideDuration": "1000"',
-                     '"timeOut": "5000"',
-                     '"extendedTimeOut": "1000"',
-                     '"showEasing": "swing"',
-                     '"hideEasing": "linear"',
-                     '"showMethod": "fadeIn"',
-                     '"hideMethod": "fadeOut"'
-                     }
     if toast_type not in ["info", "warning", "success", "error"]:
-        return "", toastr_options
+        return ""
     else:
-        toast = "toastr.{}('{}','{}')".format(toast_type, message, title)
-        return toast, toastr_options
+        toast = "'{}','{}'".format(message, title)
+        return toast
