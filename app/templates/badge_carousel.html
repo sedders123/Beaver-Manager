@@ -1,25 +1,27 @@
 <div id="beaver_carousel{{ beaver.id }}" class="carousel slide" data-ride="carousel">
   <!-- Indicators -->
   <ol class="carousel-indicators">
-    {% for badge in beaver.badges%}
-      {% if loop.index == 0 %}
+    {% for beaver_badge in beaver.badges%}
+      {% if loop.index == 1 %}
         <li data-target="#beaver_carousel{{ beaver.id }}" data-slide-to="{{loop.index}}" class="active"></li>
+      {% else %}
+        <li data-target="#beaver_carousel{{ beaver.id }}" data-slide-to="{{ loop.index }}"></li>
       {% endif %}
-      <li data-target="#beaver_carousel{{ beaver.id }}" data-slide-to="{{ loop.index }}"></li>
     {% endfor %}
   </ol>
 
   <!-- Wrapper for slides -->
   <div class="carousel-inner" role="listbox">
     {% for beaver_badge in beaver.badges %}
-      {% if loop.index == 0 %}
+      {% if loop.index == 1 %}
           <div class="item active">
-            <img src="{{ beaver_badge.badge.img_url }}" alt="{{ beaver_badge.badge.name }} ">
+            <img src="{{ beaver_badge.badge.img_url }}" alt="{{ beaver_badge.badge.name }} " class="center-block">
           </div>
-      {% endif %}
+      {% else %}
       <div class="item">
-        <img src="{{ beaver_badge.badge.img_url }}" alt="{{ beaver_badge.badge.name }} ">
+        <img src="{{ beaver_badge.badge.img_url }}" alt="{{ beaver_badge.badge.name }}" class="center-block">
       </div>
+      {% endif %}
     {% endfor %}
   </div>
 

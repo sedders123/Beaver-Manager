@@ -144,6 +144,7 @@ def register(attendance_id):
               SelectMultipleField.process_data and get assigned to .data
             """
             setattr(self, name, choices)
+
     for beaver_attendance in beaver_attendances:
         if beaver_attendance.present:
             selected.append(beaver_attendance.beaver_id)
@@ -255,7 +256,20 @@ class BadgeModelView(ModelView):
                     app.logger.info("Criterion Created")
             else:
                 app.logger.info("Badge not created")
-
+                for beaver_badge in beaver.badges:
+                    if beaver_badge.badge_id == model.id:
+                        criteria = []
+                        for criterion in beaver_badge.criteria:
+                            criteria.append(criterion.criterion_id)
+                        for criterion in model.criteria:
+                            if criterion not in criteria:
+                                badge_id = beaver_badge.id  # badge[0].id
+                                badge_criterion = BadgeCriterion(criterion.id,
+                                                                 badge_id,
+                                                                 False)
+                                db.session.add(badge_criterion)
+                                db.session.commit()
+                                app.logger.info("Criterion Created")
 
 class TripModelView(ModelView):
     """
