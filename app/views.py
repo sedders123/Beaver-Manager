@@ -165,10 +165,8 @@ def register(attendance_id):
                                                          beaver.id,
                                                          True)
                     db.session.add(beaver_attendance)
-                    db.session.commit()
                 else:
                     beaver_attendance.present = True
-                    db.session.commit()
 
             elif beaver.id not in present:
                     if beaver_attendance is None:
@@ -176,10 +174,9 @@ def register(attendance_id):
                                                              beaver.id,
                                                              False)
                         db.session.add(beaver_attendance)
-                        db.session.commit()
                     else:
                         beaver_attendance.present = False
-                        db.session.commit()
+            db.session.commit()
     return render_template("register.html", beavers=beavers, form=form)
 
 
@@ -252,10 +249,10 @@ class BadgeModelView(ModelView):
                 for beaver_badge in beaver.badges:
                     if beaver_badge.badge_id == model.id:
                         criteria = []
-                        for criterion in beaver_badge.criteria:
-                            criteria.append(criterion.criterion_id)
+                        for badge_criterion in beaver_badge.criteria:
+                            criteria.append(badge_criterion.criterion_id)
                         for criterion in model.criteria:
-                            if criterion not in criteria:
+                            if criterion.id not in criteria:
                                 badge_id = beaver_badge.id  # badge[0].id
                                 badge_criterion = BadgeCriterion(criterion.id,
                                                                  badge_id,
@@ -263,6 +260,7 @@ class BadgeModelView(ModelView):
                                 db.session.add(badge_criterion)
                                 db.session.commit()
                                 app.logger.info("Criterion Created")
+
 
 class TripModelView(ModelView):
     """

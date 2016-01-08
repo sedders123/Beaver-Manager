@@ -1,3 +1,20 @@
 .clickable-row{
   cursor: pointer;
 }
+.modal-body {
+  max-height: calc(100vh - 210px);
+  overflow-y: auto;
+}
+.scrollable {
+    height: 20%;
+    overflow-y: auto;
+}
+.carousel-control.left{
+  background-color: #fff;
+}
+.carousel-control.right{
+  background-color: #fff;
+}
+.carousel-control{
+  color: #000;
+}

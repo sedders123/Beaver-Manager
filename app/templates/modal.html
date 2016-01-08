@@ -1,4 +1,6 @@
 <!-- Modal -->
+{% set badge = beaver_badge.badge %}
+{% set criteria = beaver_badge.criteria %}
 <div id="beaver_badge_modal_{{ beaver_badge.id }}" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -6,10 +8,30 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"> {{ beaver_badge.badge.name }} </h4>
+        <h4 class="modal-title"> {{ badge.name }} </h4>
       </div>
       <div class="modal-body">
-        <p>Some text in the modal. {{ beaver_badge.id }}</p>
+        <img src="{{ badge.img_url }}" alt="{{ badge.name }}" class="center-block" style="height:50%;">
+        {{beaver.first_name}}
+        <ul class="list-group">
+          {% for criterion in criteria %}
+            {% if criterion.completed %}
+              <li class="list-group-item">
+                {{criterion.criterion.description}}
+                <span class="badge">
+                  <input type="checkbox" disabled="disabled" checked />
+                </span>
+              </li>
+            {% else %}
+            <li class="list-group-item">
+              {{criterion.criterion.description}}
+              <span class="badge">
+                <input type="checkbox" disabled="disabled" />
+              </span>
+            </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
