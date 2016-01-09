@@ -1,6 +1,4 @@
-"""
-Creates SQLAlchemy database
-"""
+"""Creates SQLAlchemy database"""
 #!flask/bin/python
 from migrate.versioning import api
 from config import SQLALCHEMY_DATABASE_URI
