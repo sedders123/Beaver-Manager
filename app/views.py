@@ -9,7 +9,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model import InlineFormAdmin
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView, expose
 
 from app import app, db
 from .models import *
@@ -17,7 +17,16 @@ from .views import *
 from .forms import *
 from .logic import *
 
-admin = Admin(app, name='beavermanager', template_mode='bootstrap3')
+
+
+class MyHomeView(AdminIndexView):
+    @expose('/')
+    def index(self):
+        return redirect(url_for('index'))
+
+
+admin = Admin(app, name='beavermanager', template_mode='bootstrap3',
+              index_view=MyHomeView())
 
 
 @app.route('/')
