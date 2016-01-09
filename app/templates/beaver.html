@@ -3,9 +3,9 @@
   <div class="container">
     <div class="row">
       <div class="col-md-6 col-sm-12">
-        <p>Name: {{beaver.first_name}} {{beaver.surname}} </p>
-        <p>Date of Birth: {{beaver.dob}} </p>
-        <p>Lodge: {{beaver.lodge.name}} </p>
+          <h2>Name: {{beaver.first_name}} {{beaver.surname}} </h2>
+          <h3>Date of Birth: {{beaver.dob.date()}} </h3>
+          <h3>Lodge: {{beaver.lodge.name}} </h3>
       </div>
       <div class="col-md-6 col-sm-12">
         {% include "graph.html" %}

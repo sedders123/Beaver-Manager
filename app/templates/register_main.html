@@ -8,9 +8,9 @@
     </tr>
   </thead>
   <tbody>
-{% for attendance in attendances %}
+{% for attendance in attendances| sort(attribute='date', reverse = True) %}
   <tr class="clickable-row" data-href="/registers/{{ attendance.id }}">
-    <td>{{ attendance.date }}</td>
+    <td>{{ attendance.date.date().strftime('%d %b %Y') }}</td>
     <td>{{ total_present[attendance.id]}}</td>
   </tr>
 {% endfor %}

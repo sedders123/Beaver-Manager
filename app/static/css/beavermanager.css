@@ -10,10 +10,10 @@
     overflow-y: auto;
 }
 .carousel-control.left{
-  background-color: #fff;
+  background-image: none;
 }
 .carousel-control.right{
-  background-color: #fff;
+  background-image: none;
 }
 .carousel-control{
   color: #000;
