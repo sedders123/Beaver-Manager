@@ -55,7 +55,7 @@ class Beaver(db.Model):
         surname (str): The beaver's surname
         dob (DateTime): The beaver's date of birth
         lodge_id (int): Foreign key for :class:`Lodge` table
-        lodge_id (int): Provides direct access to the :class:`Lodge` that is
+        lodge (Lodge): Provides direct access to the :class:`Lodge` that is
                         that is linked to the beaver
         contacts (list[:class:`EmergencyContact`]): A list of
                                                     :class:`EmergencyContact`

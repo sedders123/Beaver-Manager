@@ -299,6 +299,26 @@ class BeaverModelView(ModelView):
             else:
                 app.logger.info("Badge not created")
 
+    def on_model_delete(self, model):
+        """
+        When a beaver is deleted delete all :class:`BeaverBadge`s,
+        :class:`BeaverTrip`s, :class:`BeaverAttendance`s and
+        :class:`EmergencyContact`s  associated with it.
+        """
+        beaver_badges = model.badges
+        for beaver_badge in beaver_badges:
+            for badge_criterion in beaver_badge.criteria:
+                db.session.delete(badge_criterion)
+            db.session.delete(beaver_badge)
+        for beaver_trip in model.trips:
+            db.session.delete(beaver_trip)
+        for beaver_attendance in model.beaver_attendances:
+            db.session.delete(beaver_attendance)
+        for emergency_contact in model.contacts:
+            db.session.delete(emergency_contact)
+        db.session.commit()
+
+
 
 class BadgeModelView(ModelView):
     """
@@ -347,20 +367,36 @@ class BadgeModelView(ModelView):
                                 db.session.commit()
                                 app.logger.info("Criterion Created")
 
+    def on_model_delete(self, model):
+        """
+        When a Badge is deleted, delete all :class:`BeaverBadge`s associated
+        with it.
+        """
+        beaver_badges = model.beaver_badges
+        for beaver_badge in beaver_badges:
+            for badge_criterion in beaver_badge.criteria:
+                db.session.delete(badge_criterion)
+            db.session.delete(beaver_badge)
+        for criterion in models.criteria:
+            db.session.delete(criterion)
+
+        db.session.commit()
+
 
 class TripModelView(ModelView):
     """
     Custom view for Flask-Admin modifying update behaviour
     """
     def on_model_change(self, form, model, is_created):
-        """When a Trip record is created or modified ensures that it has
+        """
+        When a Trip record is created or modified ensures that it has
         a BeaverTrip record for all Beavers.
         """
         beavers = db.session.query(Beaver).all()
         for beaver in beavers:
             beaver_trips = []
-            for trip in beaver.trips:
-                beaver_trips.append(trip.trip_id)
+            for beaver_trip in beaver.trips:
+                beaver_trips.append(beaver_trip.trip_id)
             if model.id not in beaver_trips:
                 beaver_trip = BeaverTrip(beaver.id, model.id, False, False)
                 db.session.add(beaver_trip)
@@ -369,6 +405,15 @@ class TripModelView(ModelView):
             else:
                 app.logger.info("BeaverTrip not created")
 
+    def on_model_delete(self, model):
+        """
+        When a Trip is deleted, delete all :class:`BeaverTrip`s associated with
+        it.
+        """
+        beaver_trips = model.trips
+        for beaver_trip in beaver_trips:
+            db.session.delete(beaver_trip)
+        db.session.commit()
 
 class AttendanceModelView(ModelView):
     """
