@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% import '_forms.html' as forms %}
+
+{% block content %}
+  <div class="row">
+    <h1>Trip Information</h1>
+    <h2> Location: {{ trip.location }}</h2>
+    {% if trip.overnight %}
+    <h2> Number of Nights: {{ trip.number_of_nights }}</h2>
+    {% endif %}
+  </div>
+  <div class="row">
+    <div class="scrollable" style="max-height:40%">
+    <form method="post" name="trip">
+      <table class="table table-bordered table-hover table-responsive">
+        <thead>
+          <tr>
+            <th>Beaver</th>
+            <th>Permission</th>
+            <th>Paid</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for beaver_trip in beaver_trips %}
+              <tr>
+                <td>{{ beaver_trip.beaver.first_name }} {{ beaver_trip.beaver.surname }}</td>
+                {% if beaver_trip.beaver.id in permission %}
+                  <td><input type="checkbox" name="permission-{{beaver_trip.beaver.id}}" checked /></td>
+                {% else %}
+                  <td><input type="checkbox" name="permission-{{beaver_trip.beaver.id}}"/></td>
+                {% endif %}
+                {% if beaver_trip.beaver.id in paid %}
+                  <td><input type="checkbox"name="paid-{{beaver_trip.beaver.id}}" checked /></td>
+                {% else %}
+                  <td><input type="checkbox" name="paid-{{beaver_trip.beaver.id}}"/></td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <input type="submit" name="btn" value="Update">
+    </form>
+  </div>
+{% endblock content %}

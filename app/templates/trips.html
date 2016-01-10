@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<table class="table table-bordered table-hover table-responsive">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Location</th>
+      <th>No. of Nights</th>
+    </tr>
+  </thead>
+  <tbody>
+{% for trip in trips| sort(attribute='date') %}
+  <tr class="clickable-row" data-href="/trips/{{ trip.id }}">
+    <td>{{ trip.date.date().strftime('%d %b %Y') }}</td>
+    <td>{{ trip.location }}</td>
+    {% if trip.overnight %}
+      <td>{{ trip.number_of_nights }}</td>
+    {% else %}
+      <td>N/A</td>
+    {% endif %}
+  </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
