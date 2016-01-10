@@ -170,6 +170,8 @@ def register(attendance_id):
         choice = (beaver.id, name)
         form.beavers.choices.append(choice)
 
+    success = None
+    error = None
     if form.validate_on_submit():
         present = form.beavers.data
         for beaver in beavers:
@@ -195,8 +197,13 @@ def register(attendance_id):
                         db.session.add(beaver_attendance)
                     else:
                         beaver_attendance.present = False
+            else:
+                error = "Something went wrong"
             db.session.commit()
-    return render_template("register.html", beavers=beavers, form=form)
+        if error is None:
+            success = "Changes Saved"
+    return render_template("register.html", beavers=beavers, form=form,
+                           success=success, error=error)
 
 
 @app.route('/trips/')
