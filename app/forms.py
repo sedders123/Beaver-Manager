@@ -16,10 +16,18 @@ class MultiCheckboxField(SelectMultipleField):
 
 
 class BeaverAttendanceForm(Form):
-    beavers = MultiCheckboxField("Beavers: ", coerce=int)
+    beavers = MultiCheckboxField("Present: ", coerce=int)
 
 
-class SortForm(Form):
+class BeaverTripPaidForm(Form):
+    paid = MultiCheckboxField("Paid: ", coerce=int)
+
+
+class BeaverTripPermissionForm(Form):
+    permission = MultiCheckboxField("Permission: ", coerce=int)
+
+
+class BeaverSortForm(Form):
     sort_on = SelectField('Sort By', choices=[('surname', 'Surname'),
                           ('first_name', 'First Name'),
                           ('lodge.name', 'Lodge')])

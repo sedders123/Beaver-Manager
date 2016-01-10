@@ -19,12 +19,19 @@ from .logic import *
 
 admin = Admin(app, name='beavermanager', template_mode='bootstrap3')
 
+class ChoiceObj(object):
+    def __init__(self, name, choices):
+        """
+        This is needed so that BaseForm.process will accept the object
+        for the named form, and eventually it will end up in
+        SelectMultipleField.process_data and get assigned to .data
+        """
+        setattr(self, name, choices)
 
 @app.route('/')
 @app.route('/index')
 def index():
     """Displays the homepage"""
-    sort_form = SortForm()
     attendances = Attendance.query.all()
     for attendance in attendances:
         update_criterion(attendance)
@@ -39,7 +46,7 @@ def index():
 def beavers():
     """Queries the database for all beavers then displays a list of them"""
     beavers = Beaver.query.all()
-    sort_form = SortForm()
+    sort_form = BeaverSortForm()
     return render_template("beavers.html", beavers=beavers, form=sort_form)
 
 
@@ -129,14 +136,6 @@ def register(attendance_id):
     beaver_attendances = BeaverAttendance.query.filter_by(attendance_id=attendance_id).all()
     selected = []
 
-    class ChoiceObj(object):
-        def __init__(self, name, choices):
-            """
-              This is needed so that BaseForm.process will accept the object
-              for the named form, and eventually it will end up in
-              SelectMultipleField.process_data and get assigned to .data
-            """
-            setattr(self, name, choices)
 
     for beaver_attendance in beaver_attendances:
         if beaver_attendance.present:
@@ -178,6 +177,84 @@ def register(attendance_id):
                         beaver_attendance.present = False
             db.session.commit()
     return render_template("register.html", beavers=beavers, form=form)
+
+
+@app.route('/trips/')
+def trips():
+    """
+    Displays a list of all trips linking to an indiviual view showing more data
+    """
+    trips = Trip.query.all()
+    return render_template("trips.html", trips=trips)
+
+
+@app.route('/trips/<trip_id>', methods=['GET', 'POST'])
+def trip(trip_id):
+    """
+    Displays information about the trip and allows user to select whether or
+    a bevaer has paid for the trip and has permission for the trip
+
+    Args:
+        trip_id (int): The ID number of the trip record
+    """
+    trip = Trip.query.filter_by(id=trip_id).all()
+    trip = trip[0]
+    beaver_trips = BeaverTrip.query.filter_by(trip_id=trip_id).all()
+    beavers = Beaver.query.all()
+    paid = []
+    permission = []
+
+    for beaver_trip in beaver_trips:
+        if beaver_trip.paid:
+            paid.append(beaver_trip.beaver_id)
+        if beaver_trip.permission:
+            permission.append(beaver_trip.beaver_id)
+
+    if request.method == "POST":
+        permission_beaver_ids = []
+        paid_beaver_ids = []
+        for field in request.form:
+            if field not in["btn"]:
+                split_field = field.split("-")
+                field = split_field[0]
+                beaver_id = split_field[1]
+                beaver_trip = BeaverTrip.query.filter_by(trip_id=trip_id, beaver_id=beaver_id).all()
+                beaver_trip = beaver_trip[0]
+                if field == "permission":
+                    permission_beaver_ids.append(beaver_id)
+                    if beaver_id in permission:
+                        pass  # No action needed
+                    else:
+                        beaver_trip.permission = True
+                elif field == "paid":
+                    paid_beaver_ids.append(beaver_id)
+                    if beaver_id in paid:
+                        pass  # No action needed
+                    else:
+                        beaver_trip.paid = True
+                db.session.commit()
+        app.logger.info("{}:{}".format("Permission", permission_beaver_ids))
+        app.logger.info("{}:{}".format("Paid", paid_beaver_ids))
+
+        for beaver in beavers:
+            if str(beaver.id) not in permission_beaver_ids:
+                beaver_trip = BeaverTrip.query.filter_by(trip_id=trip_id,
+                                                         beaver_id=beaver.id
+                                                         ).all()
+                beaver_trip = beaver_trip[0]
+                beaver_trip.permission = False
+
+            if str(beaver.id) not in paid_beaver_ids:
+                beaver_trip = BeaverTrip.query.filter_by(trip_id=trip_id,
+                                                         beaver_id=beaver.id
+                                                         ).all()
+                beaver_trip = beaver_trip[0]
+                beaver_trip.paid = False
+            db.session.commit()
+        return redirect(url_for('trip', trip_id=trip_id))
+
+    return render_template("trip.html", trip=trip, paid=paid,
+                           permission=permission, beaver_trips=beaver_trips)
 
 
 class BeaverModelView(ModelView):
