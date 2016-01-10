@@ -1,5 +1,5 @@
 API Requests
 ============
 
-.. autoflask:: app:app
+.. autoflask:: beaver_manager:app
   :undoc-static:
