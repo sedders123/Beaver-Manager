@@ -129,7 +129,7 @@ def registers():
         for beaver_attendance in attendance.beaver_attendances:
             if beaver_attendance.present:
                 total_present[attendance.id] += 1
-    return render_template("register_main.html", attendances=attendances,
+    return render_template("registers.html", attendances=attendances,
                            total_present=total_present)
 
 
