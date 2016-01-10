@@ -1,3 +1,3 @@
 #!flask/bin/python
-from app import app
+from beaver_manager import app
 app.run(debug=True)

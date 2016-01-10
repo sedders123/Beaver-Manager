@@ -11,7 +11,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.model import InlineFormAdmin
 from flask_admin import Admin, AdminIndexView, expose
 
-from app import app, db
+from beaver_manager import app, db
 from .models import *
 from .views import *
 from .forms import *

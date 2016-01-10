@@ -18,4 +18,4 @@ db = SQLAlchemy(app)
 app.logger.setLevel('INFO')
 
 
-from app import views, models
+from beaver_manager import views, models

@@ -1,7 +1,7 @@
 """
 This module contains SQLAlchemy model definitions to create SQL tables
 """
-from app import db
+from beaver_manager import db
 import sqlalchemy_utils
 
 

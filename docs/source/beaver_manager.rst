@@ -1,7 +1,7 @@
-app package
+beaver_manager package
 ===========
 
-.. automodule:: app
+.. automodule:: beaver_manager
     :members:
     :undoc-members:
     :show-inheritance:
@@ -9,41 +9,41 @@ app package
 Submodules
 ----------
 
-app.email module
+beaver_manager.email module
 ----------------
 
-.. automodule:: app.email
+.. automodule:: beaver_manager.email
     :members:
     :undoc-members:
     :show-inheritance:
 
-app.forms module
+beaver_manager.forms module
 ----------------
 
-.. automodule:: app.forms
+.. automodule:: beaver_manager.forms
     :members:
     :undoc-members:
     :show-inheritance:
 
-app.models module
+beaver_manager.models module
 -----------------
 
-.. automodule:: app.models
+.. automodule:: beaver_manager.models
     :members:
     :show-inheritance:
 
-app.views module
+beaver_manager.views module
 ----------------
 
-.. automodule:: app.views
+.. automodule:: beaver_manager.views
     :members:
     :undoc-members:
     :show-inheritance:
 
-app.logic module
+beaver_manager.logic module
 ----------------
 
-.. automodule:: app.logic
+.. automodule:: beaver_manager.logic
     :members:
     :undoc-members:
     :show-inheritance:

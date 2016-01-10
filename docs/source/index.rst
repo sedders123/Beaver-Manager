@@ -11,7 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   app
+   beaver_manager
    config
    db_create
    db_downgrade
