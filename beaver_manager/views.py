@@ -18,7 +18,6 @@ from .forms import *
 from .logic import *
 
 
-
 class MyHomeView(AdminIndexView):
     @expose('/')
     def index(self):
@@ -36,6 +35,18 @@ class ChoiceObj(object):
         SelectMultipleField.process_data and get assigned to .data
         """
         setattr(self, name, choices)
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500
+
 
 @app.route('/')
 @app.route('/index')
