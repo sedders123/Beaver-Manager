@@ -242,7 +242,7 @@ class Trip(db.Model):
     __tablename__ = "trip"
     id = db.Column(db.Integer, primary_key=True)
     location = db.Column(db.String(128))
-    cost = db.Column(db.Numeric(7, 2))  # Maximum value of 99999.99
+    cost = db.Column(db.String(7))  # SQlite does not natively support decimals
     date = db.Column(db.DateTime)
     overnight = db.Column(db.Boolean)
     number_of_nights = db.Column(db.Integer)
