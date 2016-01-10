@@ -27,6 +27,7 @@ class MyHomeView(AdminIndexView):
 admin = Admin(app, name='beavermanager', template_mode='bootstrap3',
               index_view=MyHomeView())
 
+
 class ChoiceObj(object):
     def __init__(self, name, choices):
         """
@@ -155,7 +156,6 @@ def register(attendance_id):
     beavers = Beaver.query.all()
     beaver_attendances = BeaverAttendance.query.filter_by(attendance_id=attendance_id).all()
     selected = []
-
 
     for beaver_attendance in beaver_attendances:
         if beaver_attendance.present:
