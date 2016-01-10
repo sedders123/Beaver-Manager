@@ -2,7 +2,7 @@
 This module contains any logic that does not belong in any other module
 """
 
-from app import app, db
+from beaver_manager import app, db
 
 
 def update_criterion(attendance):

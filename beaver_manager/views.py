@@ -11,12 +11,11 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.model import InlineFormAdmin
 from flask_admin import Admin, AdminIndexView, expose
 
-from app import app, db
+from beaver_manager import app, db
 from .models import *
 from .views import *
 from .forms import *
 from .logic import *
-
 
 
 class MyHomeView(AdminIndexView):
@@ -28,6 +27,7 @@ class MyHomeView(AdminIndexView):
 admin = Admin(app, name='beavermanager', template_mode='bootstrap3',
               index_view=MyHomeView())
 
+
 class ChoiceObj(object):
     def __init__(self, name, choices):
         """
@@ -36,6 +36,18 @@ class ChoiceObj(object):
         SelectMultipleField.process_data and get assigned to .data
         """
         setattr(self, name, choices)
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500
+
 
 @app.route('/')
 @app.route('/index')
@@ -145,7 +157,6 @@ def register(attendance_id):
     beaver_attendances = BeaverAttendance.query.filter_by(attendance_id=attendance_id).all()
     selected = []
 
-
     for beaver_attendance in beaver_attendances:
         if beaver_attendance.present:
             selected.append(beaver_attendance.beaver_id)
@@ -159,6 +170,8 @@ def register(attendance_id):
         choice = (beaver.id, name)
         form.beavers.choices.append(choice)
 
+    success = None
+    error = None
     if form.validate_on_submit():
         present = form.beavers.data
         for beaver in beavers:
@@ -184,8 +197,13 @@ def register(attendance_id):
                         db.session.add(beaver_attendance)
                     else:
                         beaver_attendance.present = False
+            else:
+                error = "Something went wrong"
             db.session.commit()
-    return render_template("register.html", beavers=beavers, form=form)
+        if error is None:
+            success = "Changes Saved"
+    return render_template("register.html", beavers=beavers, form=form,
+                           success=success, error=error)
 
 
 @app.route('/trips/')
@@ -299,6 +317,26 @@ class BeaverModelView(ModelView):
             else:
                 app.logger.info("Badge not created")
 
+    def on_model_delete(self, model):
+        """
+        When a beaver is deleted delete all :class:`BeaverBadge`s,
+        :class:`BeaverTrip`s, :class:`BeaverAttendance`s and
+        :class:`EmergencyContact`s  associated with it.
+        """
+        beaver_badges = model.badges
+        for beaver_badge in beaver_badges:
+            for badge_criterion in beaver_badge.criteria:
+                db.session.delete(badge_criterion)
+            db.session.delete(beaver_badge)
+        for beaver_trip in model.trips:
+            db.session.delete(beaver_trip)
+        for beaver_attendance in model.beaver_attendances:
+            db.session.delete(beaver_attendance)
+        for emergency_contact in model.contacts:
+            db.session.delete(emergency_contact)
+        db.session.commit()
+
+
 
 class BadgeModelView(ModelView):
     """
@@ -347,20 +385,36 @@ class BadgeModelView(ModelView):
                                 db.session.commit()
                                 app.logger.info("Criterion Created")
 
+    def on_model_delete(self, model):
+        """
+        When a Badge is deleted, delete all :class:`BeaverBadge`s associated
+        with it.
+        """
+        beaver_badges = model.beaver_badges
+        for beaver_badge in beaver_badges:
+            for badge_criterion in beaver_badge.criteria:
+                db.session.delete(badge_criterion)
+            db.session.delete(beaver_badge)
+        for criterion in models.criteria:
+            db.session.delete(criterion)
+
+        db.session.commit()
+
 
 class TripModelView(ModelView):
     """
     Custom view for Flask-Admin modifying update behaviour
     """
     def on_model_change(self, form, model, is_created):
-        """When a Trip record is created or modified ensures that it has
+        """
+        When a Trip record is created or modified ensures that it has
         a BeaverTrip record for all Beavers.
         """
         beavers = db.session.query(Beaver).all()
         for beaver in beavers:
             beaver_trips = []
-            for trip in beaver.trips:
-                beaver_trips.append(trip.trip_id)
+            for beaver_trip in beaver.trips:
+                beaver_trips.append(beaver_trip.trip_id)
             if model.id not in beaver_trips:
                 beaver_trip = BeaverTrip(beaver.id, model.id, False, False)
                 db.session.add(beaver_trip)
@@ -369,6 +423,15 @@ class TripModelView(ModelView):
             else:
                 app.logger.info("BeaverTrip not created")
 
+    def on_model_delete(self, model):
+        """
+        When a Trip is deleted, delete all :class:`BeaverTrip`s associated with
+        it.
+        """
+        beaver_trips = model.trips
+        for beaver_trip in beaver_trips:
+            db.session.delete(beaver_trip)
+        db.session.commit()
 
 class AttendanceModelView(ModelView):
     """

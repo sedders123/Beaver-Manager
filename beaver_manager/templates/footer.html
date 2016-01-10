@@ -1,18 +1,10 @@
-jQuery(document).ready(function($) {
-    $(".clickable-row").click(function() {
-        window.document.location = $(this).data("href");
-    });
-});
-
-$(document).ready(function() {
-	$(chart_id).highcharts({
-		chart: chart,
-		title: title,
-		series: series,
-    plotOptions: plotOptions
-	});
-});
-toastrOptions = {
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="/static/js/toastr.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/beavermanager.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script>
+  toastr.options = {
                    "closeButton": false,
                    "debug": false,
                    "newestOnTop": false,
@@ -29,3 +21,9 @@ toastrOptions = {
                    "showMethod": "fadeIn",
                    "hideMethod": "fadeOut"
                    }
+  {% if success %}
+    toastr.success("{{ success }}")
+  {% elif error %}
+    toastr.error("{{ error }}")
+  {% endif %}
+</script>

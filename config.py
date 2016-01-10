@@ -18,3 +18,7 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 WTF_CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
+
+PUSHER_APP_ID = "165123"
+PUSHER_KEY = "00ded34053ebced28ff5"
+PUSHER_SECRET = "3feabf30f6c57931afe5"
