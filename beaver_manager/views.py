@@ -212,7 +212,8 @@ def trips():
     Displays a list of all trips linking to an indiviual view showing more data
     """
     trips = Trip.query.all()
-    return render_template("trips.html", trips=trips)
+    sort_form = TripSortForm()
+    return render_template("trips.html", trips=trips, form=sort_form)
 
 
 @app.route('/trips/<trip_id>', methods=['GET', 'POST'])

@@ -1,5 +1,17 @@
 {% extends "base.html" %}
+{% from "_forms.html" import render_field %}
+{% set sort_on = request.args.sort_on|default('date') %}
+
 {% block content %}
+<form class="form-inline">
+  <div class="form-group">
+    <label >Sort By:</label>
+    {{ form.sort_on()|safe }}
+  </div>
+  <div class="form-group">
+    <input type="submit" value="Sort">
+  </div>
+</form>
 <table class="table table-bordered table-hover table-responsive">
   <thead>
     <tr>
@@ -9,7 +21,7 @@
     </tr>
   </thead>
   <tbody>
-{% for trip in trips| sort(attribute='date') %}
+{% for trip in trips| sort(attribute=sort_on) %}
   <tr class="clickable-row" data-href="/trips/{{ trip.id }}">
     <td>{{ trip.date.date().strftime('%d %b %Y') }}</td>
     <td>{{ trip.location }}</td>

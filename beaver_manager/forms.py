@@ -23,3 +23,8 @@ class BeaverSortForm(Form):
     sort_on = SelectField('Sort By', choices=[('surname', 'Surname'),
                           ('first_name', 'First Name'),
                           ('lodge.name', 'Lodge')])
+
+
+class TripSortForm(Form):
+    sort_on = SelectField('Sort By', choices=[('date', 'Date'),
+                          ('location', 'Location')])
