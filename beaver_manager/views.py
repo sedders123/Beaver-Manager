@@ -291,6 +291,7 @@ class BeaverModelView(ModelView):
     modifies update behaviour
     """
     inline_models = (EmergencyContact,)  # comma needed for some reason
+    form_excluded_columns = ("badges", "beaver_attendances", "trips")
 
     def on_model_change(self, form, model, is_created):
         """When a Beaver record is created or modified ensures that it has
@@ -345,6 +346,7 @@ class BadgeModelView(ModelView):
     modifies update behaviour
     """
     inline_models = (Criterion,)
+    form_excluded_columns = ("beaver_badges")
 
     def on_model_change(self, form, model, is_created):
         """When a Badge record is created or modified ensures that it has
@@ -406,6 +408,8 @@ class TripModelView(ModelView):
     """
     Custom view for Flask-Admin modifying update behaviour
     """
+    form_excluded_columns = ("trips")
+
     def on_model_change(self, form, model, is_created):
         """
         When a Trip record is created or modified ensures that it has
@@ -438,7 +442,7 @@ class AttendanceModelView(ModelView):
     """
     Custom view for Flask-Admin. Adds BeaverAttendance as an inline view
     """
-    inline_models = (BeaverAttendance,)
+    form_excluded_columns = ("beaver_attendances")
 
 
 # Debugging only
