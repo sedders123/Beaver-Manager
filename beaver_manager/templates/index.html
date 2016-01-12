@@ -1,8 +1,17 @@
 {% extends "base.html" %}
+{% import "_forms.html" as forms %}
 {% block content %}
 <div class="row">
   <div class="col-md-6 col-sm-12">
+    <div class="scrollable" style="max-height: 40%">
       <h2>Upcoming trips</h2>
+      <ul class="list-group">
+        {% for trip in upcoming_trips %}
+          <a href="/trips/{{ trip.id }}">
+            <li class="list-group-item"> {{trip.location}} on {{trip.date.date().strftime('%d %B %Y')}}</li>
+          </a>
+        {% endfor %}
+    </div>
   </div>
   <div class="col-md-6 col-sm-12">
     <div id="container" class="chart" style="height: {{ height }}%; width: 100%"></div>
@@ -12,6 +21,23 @@
     </script>
     <script src="/static/js/line_chart.js">
     </script>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6 col-sm-12">
+    <h2>Email all contacts</h2>
+    <form name="email" class="form-horizontal" method="post">
+      <div class="form-group">
+        <label for="subject" class="control-label">Subject</label>
+        <input type="text" class="form-control" id="subject" name="subject"></input>
+        <label for="message" class="control-label">Message</label>
+        <textarea class="form-control" id="Message" style="height:20%;" name="message"></textarea>
+        <input type="submit" value="Send">
+      </div>
+    </form>
+  </div>
+  <div class="col-md-6 col-sm-12">
+
   </div>
 </div>
 {{ test }}

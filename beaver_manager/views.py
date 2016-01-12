@@ -10,6 +10,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model import InlineFormAdmin
 from flask_admin import Admin, AdminIndexView, expose
+import datetime
 
 from beaver_manager import app, db
 from .models import *
@@ -52,7 +53,7 @@ def internal_error(error):
 
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 def index():
     """Displays the homepage"""
     attendances = Attendance.query.all()
@@ -89,10 +90,33 @@ def index():
         percent = to_percent(present, total)
         attendance_data.append(percent)
     height = 40
+
+    now = datetime.datetime.now()
+    trips = Trip.query.all()
+    upcoming_trips = []
+    for trip in trips:
+        if trip.date > now:  # checks if date is in the future
+            upcoming_trips.append(trip)
     test = ""  #: Doc Can be used to print variables during runtime
+
+    if request.method == "POST":
+        form = request.form
+        for field in form:
+            if field == "subject":
+                subject = form[field]
+            elif field == "message":
+                message == form[field]
+            else:
+                app.logger.error("{} posted in email form".format(field))
+        contacts = EmergencyContact.query.all()
+        contacts_emails = []
+        for contact in contacts:
+            contacts_emails.append(contact.email)
+        send_email()  # Fill in
+
     return render_template("index.html", html_title='Home', test=test,
                            dates=sorted_dates, attendance_data=attendance_data,
-                           height=height)
+                           height=height, upcoming_trips=upcoming_trips)
 
 
 @app.route('/beavers')

@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, BooleanField, IntegerField, SelectField, SelectMultipleField
+from wtforms import StringField, BooleanField, IntegerField, SelectField, SelectMultipleField, TextAreaField
 from wtforms.validators import DataRequired
 from wtforms import widgets
 
@@ -28,3 +28,8 @@ class BeaverSortForm(Form):
 class TripSortForm(Form):
     sort_on = SelectField('Sort By', choices=[('date', 'Date'),
                           ('location', 'Location')])
+
+
+class EmailForm(Form):
+    subject = StringField()
+    message = TextAreaField()
