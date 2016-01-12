@@ -1,23 +1,29 @@
 """Module to control email"""
-import sendgrid
+from flask.ext.mail import Message
+from beaver_manager import mail
+from threading import Thread
+from beaver_manager import app
+from .decorators import async
 
-key = "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"
-sg = sendgrid.SendGridClient(key)
+
+@async
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
 
 
-def send_message(recepient, subject, message):
+def send_email(subject, sender, recipients, text_body, html_body):
     """
-    Sends email to recipent using the ``sendgrid`` module
+    Sends email to recipent using the flasks email module
 
     Args:
-        recepient (str): In form "John Doe <john.doe@example.com>"
-        subject (str): Plain text
-        message (str): Can use HTML formatting
+    subject (str): Plain text
+    sender (str): Sender of email in plain text
+    recepients (str): Reciepent email. Can be list of strings
+    text_body (str): Body of message without HTML formatting
+    html_body (str): Body of message with HTML formattin
     """
-    message = sendgrid.Mail()
-    message.add_to(recepient)
-    message.set_from("automated-beavers@sedders123.me")
-    message.set_subject("Sending with SendGrid is Fun")
-    message.set_html("and easy to do anywhere, even with Python")
-
-    sg.send(message)
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    send_async_email(app, msg)

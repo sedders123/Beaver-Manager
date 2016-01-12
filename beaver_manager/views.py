@@ -16,6 +16,8 @@ from .models import *
 from .views import *
 from .forms import *
 from .logic import *
+from .email import *
+from .decorators import *
 
 
 class MyHomeView(AdminIndexView):
