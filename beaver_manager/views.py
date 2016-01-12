@@ -56,13 +56,54 @@ def internal_error(error):
 def index():
     """Displays the homepage"""
     attendances = Attendance.query.all()
+    beaver_attendances = []
     for attendance in attendances:
         update_criterion(attendance)
         beaver_badges = BeaverBadge.query.all()
         for beaver_badge in beaver_badges:
             update_beaver_badge(beaver_badge)
+
+        for beaver_attendance in attendance.beaver_attendances:
+            beaver_attendances.append(beaver_attendance)
+
+    dates = []
+    attendance_data = []
+    attendance_data_dict = {}
+    for beaver_attendance in beaver_attendances:
+        date = beaver_attendance.attendance.date.date().strftime('%d %b %Y')
+        if date not in dates:
+            dates.append(date)
+            attendance_data_dict[date] = []
+        attendance_data_dict[date].append(beaver_attendance.present)
+    for date in dates:
+        present = 0
+        absent = 0
+        attendances = attendance_data_dict[date]
+        for attendance in attendances:
+            if attendance:
+                present += 1
+            else:
+                absent += 1
+        total = present + absent
+        percent = to_percent(present, total)
+        attendance_data.append(percent)
+    chartID = "attendance_chart"
+    series = [{
+              'name': 'Attendance',
+              'data': [{
+                        'name': 'Present',
+                        'data': attendance_data
+                       }]
+              }]
+    title = {'text': 'Attendance',
+             'x': -20}
+    xAxis = {'categories': dates}
+    yAxis = {'title': 'Beavers'}
+    height = 40
     test = ""  #: Doc Can be used to print variables during runtime
-    return render_template("index.html", html_title='Home', test=test)
+    return render_template("index.html", html_title='Home', test=test,
+                           chartID=chartID, series=series, title=title,
+                           xAxis=xAxis, yAxis=yAxis, height=40)
 
 
 @app.route('/beavers')

@@ -5,4 +5,8 @@
   var title = {{ title|safe }}
   var chart = {{ chart|safe }}
   var plotOptions = {{ plot_options|safe }}
+  {% if xAxis %}
+    var xAxis = {{ xAxis|safe }}
+    var yAxis = {{ yAxis|safe }}
+  {% endif %}
 </script>
