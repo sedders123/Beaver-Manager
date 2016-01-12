@@ -59,21 +59,3 @@ def to_percent(value, total):
         (int): Number between 0.0 and 100.0
     """
     return value / total * 100
-
-
-def generate_toast(toast_type, message, title):
-    """
-    Generates a javscript command to be used with the toastr library to
-    display a message along the bottom of the screen
-
-    Args:
-        toast_type (str): Must be one of `info,warning,success,error`. Decides
-                          formatting of popup
-        message (str): Message to be displayed in the string
-        title (str): Title for popup
-    """
-    if toast_type not in ["info", "warning", "success", "error"]:
-        return ""
-    else:
-        toast = "'{}','{}'".format(message, title)
-        return toast
