@@ -5,7 +5,13 @@
       <h2>Upcoming trips</h2>
   </div>
   <div class="col-md-6 col-sm-12">
-    {% include "graph.html" %}
+    <div id="container" class="chart" style="height: {{ height }}%; width: 100%"></div>
+    <script>
+      var dates = {{ dates|safe }}
+      var attendance_data = {{ attendance_data|safe }}
+    </script>
+    <script src="/static/js/line_chart.js">
+    </script>
   </div>
 </div>
 {{ test }}

@@ -75,7 +75,8 @@ def index():
             dates.append(date)
             attendance_data_dict[date] = []
         attendance_data_dict[date].append(beaver_attendance.present)
-    for date in dates:
+    sorted_dates = sorted(dates)
+    for date in sorted_dates:
         present = 0
         absent = 0
         attendances = attendance_data_dict[date]
@@ -87,23 +88,11 @@ def index():
         total = present + absent
         percent = to_percent(present, total)
         attendance_data.append(percent)
-    chartID = "attendance_chart"
-    series = [{
-              'name': 'Attendance',
-              'data': [{
-                        'name': 'Present',
-                        'data': attendance_data
-                       }]
-              }]
-    title = {'text': 'Attendance',
-             'x': -20}
-    xAxis = {'categories': dates}
-    yAxis = {'title': 'Beavers'}
     height = 40
     test = ""  #: Doc Can be used to print variables during runtime
     return render_template("index.html", html_title='Home', test=test,
-                           chartID=chartID, series=series, title=title,
-                           xAxis=xAxis, yAxis=yAxis, height=40)
+                           dates=sorted_dates, attendance_data=attendance_data,
+                           height=height)
 
 
 @app.route('/beavers')
