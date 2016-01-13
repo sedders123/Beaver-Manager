@@ -9,9 +9,9 @@ beaver_manager package
 Submodules
 ----------
 
-beaver_manager.decorator module
+beaver_manager.decorators module
 ----------------
-.. automodule:: beaver_manager.decorator
+.. automodule:: beaver_manager.decorators
     :members:
     :undoc-members:
     :show-inheritance:
