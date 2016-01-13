@@ -8,6 +8,14 @@ from .decorators import async
 
 @async
 def send_async_email(app, msg):
+    """
+    Function that will asyncrhonusly send an email so that the app doesn't
+    hang waiting for the email to be sent
+
+    Args:
+        app(app): Flask app instance
+        msg (msg): Flask email message instance
+    """
     with app.app_context():
         mail.send(msg)
 
