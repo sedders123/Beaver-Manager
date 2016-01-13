@@ -39,7 +39,15 @@
     </form>
   </div>
   <div class="col-md-6 col-sm-12">
-
+    <div class="scrollable" style="max-height: 40%">
+      <h2>Upcoming meetings</h2>
+      <ul class="list-group">
+        {% for attendance in upcoming_attendances %}
+          <a href="/registers/{{ attendance.id }}">
+            <li class="list-group-item"> {{attendance.description}} on {{attendance.date.date().strftime('%d %B %Y')}} - Organiser: {{attendance.organiser}}</li>
+          </a>
+        {% endfor %}
+    </div>
   </div>
 </div>
 {{ test }}

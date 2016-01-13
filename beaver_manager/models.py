@@ -314,6 +314,8 @@ class Attendance(db.Model):
     date = db.Column(db.DateTime)
     criterion_id = db.Column(db.Integer, db.ForeignKey('criterion.id'))
     criterion = db.relationship('Criterion', backref="attendances")
+    description = db.Column(db.String(64))
+    organiser = db.Column(db.String(32))
 
     def __repr__(self):
         return '<Attendance %r>' % (self.id)

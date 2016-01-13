@@ -97,6 +97,11 @@ def index(success=None, error=None):
     for trip in trips:
         if trip.date > now:  # checks if date is in the future
             upcoming_trips.append(trip)
+    attendances = Attendance.query.all()
+    upcoming_attendances = []
+    for attendance in attendances:
+        if attendance.date > now:
+            upcoming_attendances.append(attendance)
     test = ""  #: Doc Can be used to print variables during runtime
 
     if request.method == "POST":
@@ -127,7 +132,8 @@ def index(success=None, error=None):
 
     return render_template("index.html", html_title='Home', test=test,
                            dates=sorted_dates, attendance_data=attendance_data,
-                           height=height, upcoming_trips=upcoming_trips)
+                           height=height, upcoming_trips=upcoming_trips,
+                           upcoming_attendances=upcoming_attendances)
 
 
 @app.route('/beavers')
