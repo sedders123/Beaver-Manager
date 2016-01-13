@@ -55,7 +55,13 @@ def internal_error(error):
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index(success=None, error=None):
-    """Displays the homepage"""
+    """
+    Displays the homepage
+
+    Args:
+        success (str): Message to be displayed in toatr success pop up
+        error (str): Message to be displayed in toatr error pop up
+    """
     attendances = Attendance.query.all()
     beaver_attendances = []
     for attendance in attendances:

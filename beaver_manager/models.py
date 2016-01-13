@@ -308,6 +308,8 @@ class Attendance(db.Model):
         criterion (:class:`Criterion`): Provides a link to the
                                         :class:`Criterion` that Attendance is
                                         asscociated with
+        description (str): Brief description of evening
+        organiser (str): Name of organiser for that meeting
     """
     __tablename__ = "attendance"
     id = db.Column(db.Integer, primary_key=True)
