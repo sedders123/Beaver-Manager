@@ -375,8 +375,10 @@ class BeaverModelView(ModelView):
     def on_model_change(self, form, model, is_created):
         """When a Beaver record is created or modified ensures that it has
         a BeaverBadge record for all Badges and that the BeaverBadge has the
-        correct criteria
+        correct criteria. Also ensures BeverAttendances, and BeaverTrips have
+        been created.
         """
+        #  Start of BeaverBadge Creation
         badges = db.session.query(Badge).all()
         beaver_badges = []
         for badge in model.badges:
@@ -386,7 +388,7 @@ class BeaverModelView(ModelView):
                 beaver_badge = BeaverBadge(model.id, badge.id, False)
                 db.session.add(beaver_badge)
                 db.session.commit()
-                app.logger.info("Created Badge")
+                app.logger.info("Created BeaverBadge {} for {}".format(beaver_badge.id, model.first_name))
 
                 for criterion in badge.criteria:
                     badge_id = badge.id
@@ -394,9 +396,34 @@ class BeaverModelView(ModelView):
                                                      False)
                     db.session.add(badge_criterion)
                     db.session.commit()
-                    app.logger.info("Criterion Created")
+                    app.logger.info("Criterion {} Created for {}".format(badge_criterion.id, badge_id))
             else:
                 app.logger.info("Badge not created")
+
+        #  Start of BeaverAttendance Creation
+        attendances = Attendance.query.all()
+        beaver_attendances = []
+        for beaver_attendance in model.beaver_attendances:
+            beaver_attendances.append(beaver_attendance.attendance_id)
+        for attendance in attendances:
+            if attendance.id not in beaver_attendances:
+                beaver_attendance = BeaverAttendance(attendance.id, model.id,
+                                                     False)
+                app.logger.info("BeaverAttendance {} created for {}".format(beaver_attendance.id, model.first_name))
+                db.session.add(beaver_attendance)
+                db.session.commit()
+
+        #  Start of BeaverTrip Creation
+        trips = Trip.query.all()
+        beaver_trips = []
+        for beaver_attendance in model.trips:
+            beaver_trips.append(beaver_trips.trip_id)
+        for trip in trips:
+            if trip.id not in beaver_trips:
+                beaver_trip = BeaverTrip(model.id, trip.id, False, False)
+                app.logger.info("BeaverTrip {} created for {}".format(beaver_trip.id, model.first_name))
+                db.session.add(beaver_trip)
+                db.session.commit()
 
     def on_model_delete(self, model):
         """
