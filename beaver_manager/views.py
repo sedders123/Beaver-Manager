@@ -10,12 +10,15 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model import InlineFormAdmin
 from flask_admin import Admin, AdminIndexView, expose
+import datetime
 
 from beaver_manager import app, db
 from .models import *
 from .views import *
 from .forms import *
 from .logic import *
+from .email import *
+from .decorators import *
 
 
 class MyHomeView(AdminIndexView):
@@ -49,18 +52,94 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 
-@app.route('/')
-@app.route('/index')
-def index():
-    """Displays the homepage"""
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
+def index(success=None, error=None):
+    """
+    Displays the homepage
+
+    Args:
+        success (str): Message to be displayed in toatr success pop up
+        error (str): Message to be displayed in toatr error pop up
+    """
     attendances = Attendance.query.all()
+    beaver_attendances = []
     for attendance in attendances:
         update_criterion(attendance)
         beaver_badges = BeaverBadge.query.all()
         for beaver_badge in beaver_badges:
             update_beaver_badge(beaver_badge)
+
+        for beaver_attendance in attendance.beaver_attendances:
+            beaver_attendances.append(beaver_attendance)
+
+    dates = []
+    attendance_data = []
+    attendance_data_dict = {}
+    for beaver_attendance in beaver_attendances:
+        date = beaver_attendance.attendance.date.date().strftime('%d %b %Y')
+        if date not in dates:
+            dates.append(date)
+            attendance_data_dict[date] = []
+        attendance_data_dict[date].append(beaver_attendance.present)
+    sorted_dates = sorted(dates)
+    for date in sorted_dates:
+        present = 0
+        absent = 0
+        attendances = attendance_data_dict[date]
+        for attendance in attendances:
+            if attendance:
+                present += 1
+            else:
+                absent += 1
+        total = present + absent
+        percent = to_percent(present, total)
+        attendance_data.append(percent)
+    height = 40
+
+    now = datetime.datetime.now()
+    trips = Trip.query.all()
+    upcoming_trips = []
+    for trip in trips:
+        if trip.date > now:  # checks if date is in the future
+            upcoming_trips.append(trip)
+    attendances = Attendance.query.all()
+    upcoming_attendances = []
+    for attendance in attendances:
+        if attendance.date > now:
+            upcoming_attendances.append(attendance)
     test = ""  #: Doc Can be used to print variables during runtime
-    return render_template("index.html", html_title='Home', test=test)
+
+    if request.method == "POST":
+        form = request.form
+        success = None
+        error = None
+        for field in form:
+            if field == "subject":
+                subject = form[field]
+            elif field == "message":
+                message = form[field]
+            else:
+                app.logger.error("{} posted in email form".format(field))
+        contacts = EmergencyContact.query.all()
+        contacts_emails = []
+        for contact in contacts:
+            if contact.email is not None:
+                app.logger.info(contact)
+                contacts_emails.append(contact.email)
+        app.logger.info("Subject: {}\nMessage: {}\nReciepents: {}".format(subject, message, contacts_emails))
+        email_sent = send_email(subject, "beavermanagerautomated@gmail.com",
+                                contacts_emails, message, message)
+        if email_sent:
+            success = "Email Sent!"
+        else:
+            error = "Something went wrong"
+        return redirect(url_for('index', success=success, error=error))
+
+    return render_template("index.html", html_title='Home', test=test,
+                           dates=sorted_dates, attendance_data=attendance_data,
+                           height=height, upcoming_trips=upcoming_trips,
+                           upcoming_attendances=upcoming_attendances)
 
 
 @app.route('/beavers')
@@ -212,7 +291,8 @@ def trips():
     Displays a list of all trips linking to an indiviual view showing more data
     """
     trips = Trip.query.all()
-    return render_template("trips.html", trips=trips)
+    sort_form = TripSortForm()
+    return render_template("trips.html", trips=trips, form=sort_form)
 
 
 @app.route('/trips/<trip_id>', methods=['GET', 'POST'])
@@ -290,6 +370,7 @@ class BeaverModelView(ModelView):
     modifies update behaviour
     """
     inline_models = (EmergencyContact,)  # comma needed for some reason
+    form_excluded_columns = ("badges", "beaver_attendances", "trips")
 
     def on_model_change(self, form, model, is_created):
         """When a Beaver record is created or modified ensures that it has
@@ -344,6 +425,7 @@ class BadgeModelView(ModelView):
     modifies update behaviour
     """
     inline_models = (Criterion,)
+    form_excluded_columns = ("beaver_badges")
 
     def on_model_change(self, form, model, is_created):
         """When a Badge record is created or modified ensures that it has
@@ -405,6 +487,8 @@ class TripModelView(ModelView):
     """
     Custom view for Flask-Admin modifying update behaviour
     """
+    form_excluded_columns = ("trips")
+
     def on_model_change(self, form, model, is_created):
         """
         When a Trip record is created or modified ensures that it has
@@ -437,7 +521,7 @@ class AttendanceModelView(ModelView):
     """
     Custom view for Flask-Admin. Adds BeaverAttendance as an inline view
     """
-    inline_models = (BeaverAttendance,)
+    form_excluded_columns = ("beaver_attendances")
 
 
 # Debugging only

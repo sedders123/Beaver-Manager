@@ -308,12 +308,16 @@ class Attendance(db.Model):
         criterion (:class:`Criterion`): Provides a link to the
                                         :class:`Criterion` that Attendance is
                                         asscociated with
+        description (str): Brief description of evening
+        organiser (str): Name of organiser for that meeting
     """
     __tablename__ = "attendance"
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime)
     criterion_id = db.Column(db.Integer, db.ForeignKey('criterion.id'))
     criterion = db.relationship('Criterion', backref="attendances")
+    description = db.Column(db.String(64))
+    organiser = db.Column(db.String(32))
 
     def __repr__(self):
         return '<Attendance %r>' % (self.id)
