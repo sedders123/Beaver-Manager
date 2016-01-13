@@ -52,9 +52,9 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
-def index():
+def index(success=None, error=None):
     """Displays the homepage"""
     attendances = Attendance.query.all()
     beaver_attendances = []
@@ -101,18 +101,29 @@ def index():
 
     if request.method == "POST":
         form = request.form
+        success = None
+        error = None
         for field in form:
             if field == "subject":
                 subject = form[field]
             elif field == "message":
-                message == form[field]
+                message = form[field]
             else:
                 app.logger.error("{} posted in email form".format(field))
         contacts = EmergencyContact.query.all()
         contacts_emails = []
         for contact in contacts:
-            contacts_emails.append(contact.email)
-        send_email()  # Fill in
+            if contact.email is not None:
+                app.logger.info(contact)
+                contacts_emails.append(contact.email)
+        app.logger.info("Subject: {}\nMessage: {}\nReciepents: {}".format(subject, message, contacts_emails))
+        email_sent = send_email(subject, "beavermanagerautomated@gmail.com",
+                                contacts_emails, message, message)
+        if email_sent:
+            success = "Email Sent!"
+        else:
+            error = "Something went wrong"
+        return redirect(url_for('index', success=success, error=error))
 
     return render_template("index.html", html_title='Home', test=test,
                            dates=sorted_dates, attendance_data=attendance_data,

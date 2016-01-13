@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% import "_forms.html" as forms %}
+{% set success = request.args.success|default('') %}
+{% set error = request.args.error|default('') %}
 {% block content %}
 <div class="row">
   <div class="col-md-6 col-sm-12">
@@ -41,4 +43,12 @@
   </div>
 </div>
 {{ test }}
+<script>
+  {% if success %}
+    toastr.success("{{ success }}")
+  {% elif error %}
+    toastr.error("{{ error }}")
+  {% endif %}
+</script>
+
 {% endblock %}

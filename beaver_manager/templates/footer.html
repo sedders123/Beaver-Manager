@@ -1,25 +1,7 @@
-<script src="/static/js/toastr.js"></script>
 <script src="/static/js/bootstrap.min.js"></script>
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="/static/js/beavermanager.js"></script>
 <script>
-  toastr.options = {
-                   "closeButton": false,
-                   "debug": false,
-                   "newestOnTop": false,
-                   "progressBar": false,
-                   "positionClass": "toast-bottom-full-width",
-                   "preventDuplicates": false,
-                   "onclick": null,
-                   "showDuration": "300",
-                   "hideDuration": "1000",
-                   "timeOut": "5000",
-                   "extendedTimeOut": "1000",
-                   "showEasing": "swing",
-                   "hideEasing": "linear",
-                   "showMethod": "fadeIn",
-                   "hideMethod": "fadeOut"
-                   }
   {% if success %}
     toastr.success("{{ success }}")
   {% elif error %}
