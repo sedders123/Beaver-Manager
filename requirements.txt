@@ -12,3 +12,4 @@ sphinxcontrib-napoleon
 sphinxcontrib-httpdomain
 flask-login
 FlaskPusher
+flask-mail
