@@ -10,7 +10,9 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model import InlineFormAdmin
 from flask_admin import Admin, AdminIndexView, expose
+from wtforms import validators
 import datetime
+import re
 
 from beaver_manager import app, db
 from .models import *
@@ -140,6 +142,15 @@ def index(success=None, error=None):
                            dates=sorted_dates, attendance_data=attendance_data,
                            height=height, upcoming_trips=upcoming_trips,
                            upcoming_attendances=upcoming_attendances)
+
+
+def beaver_to_pdf(beaver):
+    pdf = create_pdf(render_template('beaver_pdf.html', beaver))
+    response = make_response(csv)
+    # Set the nesecerrary header for the response to be
+    # downloaded, instead of just printed on the browser
+    response.headers["Content-Disposition"] = "attachment; filename={}_{}.csv".format(beaver.first_name, beaver.surname)
+    return response
 
 
 @app.route('/beavers')
@@ -378,52 +389,57 @@ class BeaverModelView(ModelView):
         correct criteria. Also ensures BeverAttendances, and BeaverTrips have
         been created.
         """
-        #  Start of BeaverBadge Creation
-        badges = db.session.query(Badge).all()
-        beaver_badges = []
-        for badge in model.badges:
-            beaver_badges.append(badge.badge_id)
-        for badge in badges:
-            if badge.id not in beaver_badges:
-                beaver_badge = BeaverBadge(model.id, badge.id, False)
-                db.session.add(beaver_badge)
-                db.session.commit()
-                app.logger.info("Created BeaverBadge {} for {}".format(beaver_badge.id, model.first_name))
-
-                for criterion in badge.criteria:
-                    badge_id = badge.id
-                    badge_criterion = BadgeCriterion(criterion.id, badge_id,
-                                                     False)
-                    db.session.add(badge_criterion)
+        if (not re.match("^[A-Z][-a-zA-Z]+$", form.first_name.data)) and(form.first_name.data is not ""):
+            raise validators.ValidationError('Invalid first name!')
+        elif (not re.match("^[A-Z][-a-zA-Z]+$", form.surname.data)) and(form.first_name.data is not ""):
+            raise validators.ValidationError('Invalid surname!')
+        else:
+            #  Start of BeaverBadge Creation
+            badges = db.session.query(Badge).all()
+            beaver_badges = []
+            for badge in model.badges:
+                beaver_badges.append(badge.badge_id)
+            for badge in badges:
+                if badge.id not in beaver_badges:
+                    beaver_badge = BeaverBadge(model.id, badge.id, False)
+                    db.session.add(beaver_badge)
                     db.session.commit()
-                    app.logger.info("Criterion {} Created for {}".format(badge_criterion.id, badge_id))
-            else:
-                app.logger.info("Badge not created")
+                    app.logger.info("Created BeaverBadge {} for {}".format(beaver_badge.id, model.first_name))
 
-        #  Start of BeaverAttendance Creation
-        attendances = Attendance.query.all()
-        beaver_attendances = []
-        for beaver_attendance in model.beaver_attendances:
-            beaver_attendances.append(beaver_attendance.attendance_id)
-        for attendance in attendances:
-            if attendance.id not in beaver_attendances:
-                beaver_attendance = BeaverAttendance(attendance.id, model.id,
-                                                     False)
-                app.logger.info("BeaverAttendance {} created for {}".format(beaver_attendance.id, model.first_name))
-                db.session.add(beaver_attendance)
-                db.session.commit()
+                    for criterion in badge.criteria:
+                        badge_id = badge.id
+                        badge_criterion = BadgeCriterion(criterion.id, badge_id,
+                                                         False)
+                        db.session.add(badge_criterion)
+                        db.session.commit()
+                        app.logger.info("Criterion {} Created for {}".format(badge_criterion.id, badge_id))
+                else:
+                    app.logger.info("Badge not created")
 
-        #  Start of BeaverTrip Creation
-        trips = Trip.query.all()
-        beaver_trips = []
-        for beaver_attendance in model.trips:
-            beaver_trips.append(beaver_trips.trip_id)
-        for trip in trips:
-            if trip.id not in beaver_trips:
-                beaver_trip = BeaverTrip(model.id, trip.id, False, False)
-                app.logger.info("BeaverTrip {} created for {}".format(beaver_trip.id, model.first_name))
-                db.session.add(beaver_trip)
-                db.session.commit()
+            #  Start of BeaverAttendance Creation
+            attendances = Attendance.query.all()
+            beaver_attendances = []
+            for beaver_attendance in model.beaver_attendances:
+                beaver_attendances.append(beaver_attendance.attendance_id)
+            for attendance in attendances:
+                if attendance.id not in beaver_attendances:
+                    beaver_attendance = BeaverAttendance(attendance.id, model.id,
+                                                         False)
+                    app.logger.info("BeaverAttendance {} created for {}".format(beaver_attendance.id, model.first_name))
+                    db.session.add(beaver_attendance)
+                    db.session.commit()
+
+            #  Start of BeaverTrip Creation
+            trips = Trip.query.all()
+            beaver_trips = []
+            for beaver_trip in model.trips:
+                beaver_trips.append(beaver_trip)
+            for trip in trips:
+                if trip.id not in beaver_trips:
+                    beaver_trip = BeaverTrip(model.id, trip.id, False, False)
+                    app.logger.info("BeaverTrip {} created for {}".format(beaver_trip.id, model.first_name))
+                    db.session.add(beaver_trip)
+                    db.session.commit()
 
     def on_model_delete(self, model):
         """
@@ -454,60 +470,66 @@ class BadgeModelView(ModelView):
     inline_models = (Criterion,)
     form_excluded_columns = ("beaver_badges")
 
+
     def on_model_change(self, form, model, is_created):
         """When a Badge record is created or modified ensures that it has
         a BeaverBadge record for all Beavers and that the BeaverBadge has the
         correct criteria
         """
-        beavers = db.session.query(Beaver).all()
-        for beaver in beavers:
-            beaver_badges = []
-            for badge in beaver.badges:
-                beaver_badges.append(badge.badge_id)
-            if model.id not in beaver_badges:
-                beaver_badge = BeaverBadge(beaver.id, model.id, False)
-                db.session.add(beaver_badge)
-                db.session.commit()
-                app.logger.info("Created Badge")
-
-                for criterion in model.criteria:
-                    badge_id = beaver_badge.id  # badge[0].id
-                    badge_criterion = BadgeCriterion(criterion.id, badge_id,
-                                                     False)
-                    db.session.add(badge_criterion)
+        if (not re.match("^[A-Z][-a-zA-Z]+$", form.first_name.data)) and(form.first_name.data is not ""):
+            raise validators.ValidationError('Invalid first name!')
+        elif (not re.match("^[A-Z][-a-zA-Z]+$", form.surname.data)) and(form.first_name.data is not ""):
+            raise validators.ValidationError('Invalid surname!')
+        else:
+            beavers = db.session.query(Beaver).all()
+            for beaver in beavers:
+                beaver_badges = []
+                for badge in beaver.badges:
+                    beaver_badges.append(badge.badge_id)
+                if model.id not in beaver_badges:
+                    beaver_badge = BeaverBadge(beaver.id, model.id, False)
+                    db.session.add(beaver_badge)
                     db.session.commit()
-                    app.logger.info("Criterion Created")
-            else:
-                app.logger.info("Badge not created")
-                for beaver_badge in beaver.badges:
-                    if beaver_badge.badge_id == model.id:
-                        criteria = []
-                        for badge_criterion in beaver_badge.criteria:
-                            criteria.append(badge_criterion.criterion_id)
-                        for criterion in model.criteria:
-                            if criterion.id not in criteria:
-                                badge_id = beaver_badge.id  # badge[0].id
-                                badge_criterion = BadgeCriterion(criterion.id,
-                                                                 badge_id,
-                                                                 False)
-                                db.session.add(badge_criterion)
-                                db.session.commit()
-                                app.logger.info("Criterion Created")
+                    app.logger.info("Created Badge")
 
-    def on_model_delete(self, model):
-        """
-        When a Badge is deleted, delete all :class:`BeaverBadge`s associated
-        with it.
-        """
-        beaver_badges = model.beaver_badges
-        for beaver_badge in beaver_badges:
-            for badge_criterion in beaver_badge.criteria:
-                db.session.delete(badge_criterion)
-            db.session.delete(beaver_badge)
-        for criterion in models.criteria:
-            db.session.delete(criterion)
+                    for criterion in model.criteria:
+                        badge_id = beaver_badge.id  # badge[0].id
+                        badge_criterion = BadgeCriterion(criterion.id, badge_id,
+                                                         False)
+                        db.session.add(badge_criterion)
+                        db.session.commit()
+                        app.logger.info("Criterion Created")
+                else:
+                    app.logger.info("Badge not created")
+                    for beaver_badge in beaver.badges:
+                        if beaver_badge.badge_id == model.id:
+                            criteria = []
+                            for badge_criterion in beaver_badge.criteria:
+                                criteria.append(badge_criterion.criterion_id)
+                            for criterion in model.criteria:
+                                if criterion.id not in criteria:
+                                    badge_id = beaver_badge.id  # badge[0].id
+                                    badge_criterion = BadgeCriterion(criterion.id,
+                                                                     badge_id,
+                                                                     False)
+                                    db.session.add(badge_criterion)
+                                    db.session.commit()
+                                    app.logger.info("Criterion Created")
 
-        db.session.commit()
+        def on_model_delete(self, model):
+            """
+            When a Badge is deleted, delete all :class:`BeaverBadge`s associated
+            with it.
+            """
+            beaver_badges = model.beaver_badges
+            for beaver_badge in beaver_badges:
+                for badge_criterion in beaver_badge.criteria:
+                    db.session.delete(badge_criterion)
+                db.session.delete(beaver_badge)
+            for criterion in models.criteria:
+                db.session.delete(criterion)
+
+            db.session.commit()
 
 
 class TripModelView(ModelView):
