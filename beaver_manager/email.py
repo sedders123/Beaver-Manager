@@ -28,7 +28,7 @@ def send_email(subject, recipients, text_body, html_body):
         subject (str): Plain text
         recepients (str): Reciepent email. Can be list of strings
         text_body (str): Body of message without HTML formatting
-        html_body (str): Body of message with HTML formattin
+        html_body (str): Body of message with HTML formatting
     """
     sender = "beavermanagerautomated@gmail.com"
     msg = Message(subject, sender=sender, recipients=recipients)
