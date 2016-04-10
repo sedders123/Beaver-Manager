@@ -476,10 +476,8 @@ class BadgeModelView(ModelView):
         a BeaverBadge record for all Beavers and that the BeaverBadge has the
         correct criteria
         """
-        if (not re.match("^[A-Z][-a-zA-Z]+$", form.first_name.data)) and(form.first_name.data is not ""):
-            raise validators.ValidationError('Invalid first name!')
-        elif (not re.match("^[A-Z][-a-zA-Z]+$", form.surname.data)) and(form.first_name.data is not ""):
-            raise validators.ValidationError('Invalid surname!')
+        if (not re.match("^[A-Z][-a-zA-Z]+$", form.name.data)) and(form.name.data is not ""):
+            raise validators.ValidationError('Invalid name!')
         else:
             beavers = db.session.query(Beaver).all()
             for beaver in beavers:
