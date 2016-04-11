@@ -64,6 +64,7 @@ def index(success=None, error=None):
         success (str): Message to be displayed in toatr success pop up
         error (str): Message to be displayed in toatr error pop up
     """
+    # Update badges criteria if beaver present for meeting
     attendances = Attendance.query.all()
     beaver_attendances = []
     for attendance in attendances:
@@ -75,6 +76,7 @@ def index(success=None, error=None):
         for beaver_attendance in attendance.beaver_attendances:
             beaver_attendances.append(beaver_attendance)
 
+    # Get data for attendance graph
     dates = []
     attendance_data = []
     attendance_data_dict = {}
@@ -145,11 +147,17 @@ def index(success=None, error=None):
 
 
 def beaver_to_pdf(beaver):
+    """
+    Takes a beaver and returns there information as a pdf
+
+    Args:
+        beaver(Beaver): The beaver that needs exporting
+    """
     pdf = create_pdf(render_template('beaver_pdf.html', beaver))
-    response = make_response(csv)
+    response = make_response(pdf)
     # Set the nesecerrary header for the response to be
     # downloaded, instead of just printed on the browser
-    response.headers["Content-Disposition"] = "attachment; filename={}_{}.csv".format(beaver.first_name, beaver.surname)
+    response.headers["Content-Disposition"] = "attachment; filename={}_{}.pdf".format(beaver.first_name, beaver.surname)
     return response
 
 
