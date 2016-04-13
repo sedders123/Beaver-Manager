@@ -1,7 +1,7 @@
 # Beaver-Manager
-[![Documentation Status](https://readthedocs.org/projects/beaver-manager/badge/?version=latest)](http://beaver-manager.readthedocs.org/en/latest/?badge=latest)
 
-Flask project to manage a Beaver group
+Beaver Manager is a Flask application to aid in the management of Beaver colonies. It loosely uses the MVC pattern of software making it easy to maintain and expand. Each model and controller is entirely self dependant meaning that things can be chagned without the fear of breaking multiple features.
+
 ## Installation
 ### Ubuntu/Linux
 #### Dependencies
