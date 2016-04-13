@@ -6,7 +6,7 @@ Flask project to manage a Beaver group
 ### Ubuntu/Linux
 #### Dependencies
 
-Beaver manager requires only Python3.4+ to be installed in order to run. You can install this by runnning `$ apt-get install python3`
+Beaver manager requires only Python 3.4+ to be installed in order to run. You can install this by runnning `$ apt-get install python3`
 
 #### Installation
 First of all clone the repo  `git clone https://github.com/sedders123/Beaver-Manager`. Then to install all the python dependicies navigate into the cloned repo and run `pip install -r requirements.txt`. This will install all neccessary packages.
